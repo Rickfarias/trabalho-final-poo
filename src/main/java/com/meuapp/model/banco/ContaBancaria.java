@@ -1,0 +1,102 @@
+package main.java.com.meuapp.model.banco;
+
+import main.java.com.meuapp.exception.ContaInexistenteException;
+import main.java.com.meuapp.exception.SaldoInsuficienteException;
+import main.java.com.meuapp.exception.ValorInvalidoException;
+
+import java.util.Random;
+
+/*
+ *  TODO: Separar as regras de negocios, colocar em ContaBancariaService/ContaService
+ *
+ */
+
+
+public class ContaBancaria {
+    private String id;
+    private Pessoa titular;
+    private double saldo = 0.0;
+
+    private static int contadorConta = 0;
+
+    public ContaBancaria(Pessoa titular, double saldoInicial) {
+        this.id = gerarId();
+        this.titular = titular;
+        this.saldo = saldoInicial;
+
+        contadorConta++;
+    }
+
+    public ContaBancaria(Pessoa titular) {
+        this.id = gerarId();
+        this.titular = titular;
+
+        contadorConta++;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public Pessoa getTitular() {
+        return titular;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String gerarId() {
+        return String.valueOf(Math.abs(new Random().nextInt(10_000)));
+    }
+
+
+    public void sacar(double valor) {
+        if (valor <= 0) {
+            // Lançamento de exceção personalizada para erro de argumento
+            throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
+        }
+
+        if (valor > this.saldo) {
+            // Lançamento da exceção de negócio personalizada
+            throw new SaldoInsuficienteException(String.format("Saldo de R$%.2f é insuficiente para o saque de R$%.2f.", this.saldo, valor));
+        }
+
+        // Se o fluxo chegar aqui, o saque é válido
+        this.saldo -= valor;
+    }
+
+    public void depositar(double valor) {
+        if (valor <= 0) {
+            throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
+        }
+
+        this.saldo += valor;
+    }
+
+    public void transferir(ContaBancaria destino, double valor) throws ContaInexistenteException {
+        if (valor <= 0) {
+            throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
+        }
+
+        if (destino == null) {
+            throw new ContaInexistenteException("Conta destino inexistente!");
+        }
+
+        sacar(valor);
+        destino.depositar(valor);
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                """
+                Conta Bancaria:
+                ID: %s,
+                Titular: %s
+                Agência: Banco UFC,
+                """,
+                id, titular);
+    }
+
+}
