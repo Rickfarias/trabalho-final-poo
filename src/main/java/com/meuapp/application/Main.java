@@ -1,7 +1,6 @@
 package main.java.com.meuapp.application;
 
 import main.java.com.meuapp.controller.AgenciaController;
-import main.java.com.meuapp.model.banco.AgenciaBancaria;
 
 public class Main {
     public static void main(String[] args) {

@@ -8,7 +8,8 @@ import main.java.com.meuapp.repository.ContaRepository;
 import java.util.Random;
 
 /*
- *  TODO: Separar as regras de negocios, colocar em ContaBancariaService/ContaService
+ *  TODO:
+ *      Deixar todas as regras em ContaService, transformar conta bancaria em POJO (Plain Old Java Object)
  *
  */
 

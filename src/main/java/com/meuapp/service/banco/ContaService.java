@@ -8,6 +8,7 @@ import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.ValorInvalidoException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
+import main.java.com.meuapp.repository.ContaRepository;
 
 public class ContaService {
     public static void depositar(ContaBancaria conta, double valor) {

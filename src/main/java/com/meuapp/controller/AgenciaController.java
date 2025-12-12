@@ -1,10 +1,5 @@
 package main.java.com.meuapp.controller;
 
-/*
- *  TODO: Adicionar a UI de AgenciaBancaria AQUI
- *
- */
-
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
@@ -82,8 +77,6 @@ public class AgenciaController {
 
         } catch (SaldoInsuficienteException | ValorInvalidoException e) {
             InputUtil.error(e.getMessage(), "ERRO");
-        } catch (ContaInexistenteException e) {
-            InputUtil.warn(e.getMessage(), "AVISO");
         }
     }
 
@@ -96,8 +89,6 @@ public class AgenciaController {
                 Deposito de %.2f realizado com sucesso.
                 Novo saldo: %.2f
                 """, deposito, conta.getSaldo()));
-        } catch (ContaInexistenteException e) {
-            InputUtil.warn(e.getMessage(), "AVISO");
         } catch (SaldoInsuficienteException e) {
             InputUtil.error(e.getMessage(), "ERRO");
         }
@@ -136,13 +127,13 @@ public class AgenciaController {
     public static void menuSecundarioUI(ContaBancaria conta) {
 
 
+        // TODO: Ver por que fica Titular: Nome e nao so um deles
         InputUtil.info(String.format("""
                             Bem-vindo(a) ao Banco UFC.
                             Titular: %s
                             ID: %s
                             Saldo Inicial: R$%.2f
                         """, conta.getTitular(), conta.getId(), conta.getSaldo()));
-
 
         String input = InputUtil.inputString(
                 """

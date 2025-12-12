@@ -5,9 +5,7 @@ package main.java.com.meuapp.service.banco;
 * */
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
-import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
-import main.java.com.meuapp.exception.ValorInvalidoException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.banco.Pessoa;
 import main.java.com.meuapp.repository.ContaRepository;
@@ -38,11 +36,11 @@ public class AgenciaService {
         return conta;
     }
     
-    public static void saque(ContaBancaria conta, double valor) throws ContaInexistenteException, SaldoInsuficienteException, ValorInvalidoException {
+    public static void saque(ContaBancaria conta, double valor) {
         ContaService.sacar(conta, valor);
     }
 
-    public static void deposito(ContaBancaria conta, double valor) throws ContaInexistenteException {
+    public static void deposito(ContaBancaria conta, double valor) {
         ContaService.depositar(conta, valor);
     }
 
