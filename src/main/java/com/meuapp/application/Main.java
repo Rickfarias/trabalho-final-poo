@@ -1,5 +1,6 @@
 package main.java.com.meuapp.application;
 
+import main.java.com.meuapp.controller.AgenciaController;
 import main.java.com.meuapp.model.banco.AgenciaBancaria;
 
 public class Main {
@@ -13,7 +14,7 @@ public class Main {
         sp.gerarRelatorio();
         */
 
-        AgenciaBancaria aB = new AgenciaBancaria();
-        aB.entrar();
+        AgenciaController controlador = new AgenciaController();
+        controlador.menuPrincipalUI();
     }
 }

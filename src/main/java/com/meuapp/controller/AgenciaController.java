@@ -8,6 +8,7 @@ package main.java.com.meuapp.controller;
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
+import main.java.com.meuapp.exception.ValorInvalidoException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.repository.ContaRepository;
 import main.java.com.meuapp.service.banco.AgenciaService;
@@ -15,7 +16,7 @@ import main.java.com.meuapp.service.banco.ValidacaoService;
 import main.java.com.meuapp.util.InputUtil;
 
 public class AgenciaController {
-    public void menuPrincipalUI() {
+    public static void menuPrincipalUI() {
         String menu = """
                Bem-vindo(a) ao Banco UFC!
                1 - Criar conta
@@ -41,7 +42,7 @@ public class AgenciaController {
         }
     }
 
-    public void criarContaUI() {
+    public static void criarContaUI() {
         String nome = InputUtil.inputString("Insira o seu nome completo");
         String senha = InputUtil.inputString("Insira a senha da conta");
         senha = ValidacaoService.confirmarSenha(senha);
@@ -49,11 +50,12 @@ public class AgenciaController {
         String email = InputUtil.inputString("Insira o seu email");
         String endereco = InputUtil.inputString("Insira o seu endereço");
 
-        AgenciaService.criarConta(nome, senha, cpf, email, endereco);
-        InputUtil.info("Conta criada com sucesso! Seu id é: ");
+        ContaBancaria novaConta = AgenciaService.criarConta(nome, senha, cpf, email, endereco);
+
+        InputUtil.info("Conta criada com sucesso! Seu id é: " + novaConta.getId());
     }
 
-    public void acessarContaUI(){
+    public static void acessarContaUI(){
         String idLogin = InputUtil.inputString("Digite o ID da conta");
         String senhaLogin = InputUtil.inputString("Digite a senha");
 
@@ -67,7 +69,71 @@ public class AgenciaController {
         }
     }
 
-    public void menuSecundarioUI(ContaBancaria conta) {
+    public static void saqueUI(ContaBancaria conta) {
+        double saque = InputUtil.inputDouble("Insira o valor do saque");
+
+        try {
+            AgenciaService.saque(conta,saque);
+
+            InputUtil.info(String.format("""
+                    Saque de R$%.2f realizado com sucesso.
+                    Novo Saldo: R$%.2f""",
+                    saque, conta.getSaldo()));
+
+        } catch (SaldoInsuficienteException | ValorInvalidoException e) {
+            InputUtil.error(e.getMessage(), "ERRO");
+        } catch (ContaInexistenteException e) {
+            InputUtil.warn(e.getMessage(), "AVISO");
+        }
+    }
+
+    public static void depositarUI(ContaBancaria conta) {
+        double deposito = InputUtil.inputDouble("Insira o valor do deposito");
+
+        try {
+            AgenciaService.deposito(conta, deposito);
+            InputUtil.info(String.format("""
+                Deposito de %.2f realizado com sucesso.
+                Novo saldo: %.2f
+                """, deposito, conta.getSaldo()));
+        } catch (ContaInexistenteException e) {
+            InputUtil.warn(e.getMessage(), "AVISO");
+        } catch (SaldoInsuficienteException e) {
+            InputUtil.error(e.getMessage(), "ERRO");
+        }
+
+    }
+
+    public static void transferirUI() {
+        AgenciaService.listarIDs();
+
+        String idOrigem = InputUtil.inputString("Insira o ID da conta de origem");
+        String idDestino = InputUtil.inputString("Insira o ID da conta destino");
+
+        try {
+            double valor = InputUtil.inputDouble("Insira o valor da transferência");
+
+            var resultado = AgenciaService.transferir(idOrigem, idDestino, valor);
+            ContaBancaria origem = resultado.primeiro;
+            ContaBancaria destino = resultado.segundo;
+
+            InputUtil.info(String.format("""
+                Transferência concluída!
+                De: %s
+                Para: %s
+                Valor: R$%.2f
+                """,
+                    origem.getTitular().getNome(),
+                    destino.getTitular().getNome(),
+                    valor));
+
+        } catch (ContaInexistenteException e) {
+            InputUtil.warn(e.getMessage(), "AVISO");
+        }
+    }
+
+
+    public static void menuSecundarioUI(ContaBancaria conta) {
 
 
         InputUtil.info(String.format("""
@@ -94,54 +160,9 @@ public class AgenciaController {
 
         try {
             switch (input) {
-                case "1" -> {
-                    double saque = InputUtil.inputDouble("Insira o valor do saque");
-
-                    // Tenta realizar a operação (pode lançar SaldoInsuficienteException ou IllegalArgumentException)
-                    conta.sacar(saque);
-
-                    // Exibe o sucesso (só é executado se nenhuma exceção ocorrer)
-                    InputUtil.info(String.format("""
-                                Saque de R$%.2f realizado com sucesso.
-                                Novo Saldo: R$%.2f""", saque, conta.getSaldo()));
-                }
-                case "2" -> {
-                    double deposito = InputUtil.inputDouble("Insira o valor do deposito");
-
-                    conta.depositar(deposito);
-
-                    InputUtil.info(String.format("""
-                                                Deposito de %.2f realizado com sucesso.
-                                                Novo saldo: %.2f
-                                                """, deposito, conta.getSaldo()));
-                }
-                case "3" -> {
-                    ContaRepository.listarIDs();
-
-                    String idOrigem = InputUtil.inputString("Insira o ID da conta de origem");
-                    String idDestino = InputUtil.inputString("Insira o ID da conta destino");
-
-                    ContaBancaria origem = ContaRepository.buscarContaPorID(idOrigem);
-                    ContaBancaria destino = ContaRepository.buscarContaPorID(idDestino);
-
-                    if (origem == null) {
-                        throw new ContaInexistenteException("Conta de origem não encontrada!");
-                    }
-                    if (destino == null) {
-                        throw new ContaInexistenteException("Conta de destino não encontrada!");
-                    }
-
-                    double valor = InputUtil.inputDouble("Insira o valor que deseja transferir");
-
-                    origem.transferir(destino, valor);
-
-                    InputUtil.info(String.format("""
-                                       Transferência concluída!
-                                       De: %s
-                                       Para: %s
-                                       Valor: %.2f
-                                       """, origem.getTitular(), destino.getTitular(), valor));
-                }
+                case "1" -> saqueUI(conta);
+                case "2" -> depositarUI(conta);
+                case "3" -> transferirUI();
                 case "4" -> ContaRepository.listarContas();
             }
         } catch (SaldoInsuficienteException e) {
@@ -153,11 +174,6 @@ public class AgenciaController {
             InputUtil.error(
                     "ERRO DE VALIDAÇÃO: " + e.getMessage(),
                     "Falha no Saque (Erro)");
-        }
-        catch (ContaInexistenteException e) {
-            InputUtil.error(
-                    "ERRO DE VALIDAÇÃO: " + e.getMessage(),
-                    "Conta Inexistente");
         }
     }
 }

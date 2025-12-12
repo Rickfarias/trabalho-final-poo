@@ -1,9 +1,9 @@
 package main.java.com.meuapp.model.banco;
 
+import main.java.com.meuapp.controller.AgenciaController;
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.repository.ContaRepository;
-import main.java.com.meuapp.service.banco.AgenciaService;
 import main.java.com.meuapp.util.InputUtil;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class AgenciaBancaria {
             int opcao = InputUtil.inputInt(menu);
 
             switch (opcao) {
-                case 1 -> AgenciaService.criarConta();
+                case 1 -> AgenciaController.menuPrincipalUI();
                 case 2 -> {
                     String idLogin = InputUtil.inputString("Digite o ID da conta");
                     String senhaLogin = InputUtil.inputString("Digite a senha");
@@ -115,7 +115,7 @@ public class AgenciaBancaria {
 
                                 double valor = InputUtil.inputDouble("Insira o valor que deseja transferir");
 
-                                origem.transferir(destino, valor);
+                               /* origem.transferir(destino, valor);*/
 
                                 InputUtil.info(String.format("""
                                        Transferência concluída!

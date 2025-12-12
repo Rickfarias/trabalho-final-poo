@@ -5,10 +5,13 @@ package main.java.com.meuapp.service.banco;
 * */
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
+import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
+import main.java.com.meuapp.exception.ValorInvalidoException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.banco.Pessoa;
 import main.java.com.meuapp.repository.ContaRepository;
+import main.java.com.meuapp.util.Par;
 
 public class AgenciaService {
 
@@ -33,6 +36,33 @@ public class AgenciaService {
         }
 
         return conta;
+    }
+    
+    public static void saque(ContaBancaria conta, double valor) throws ContaInexistenteException, SaldoInsuficienteException, ValorInvalidoException {
+        ContaService.sacar(conta, valor);
+    }
+
+    public static void deposito(ContaBancaria conta, double valor) throws ContaInexistenteException {
+        ContaService.depositar(conta, valor);
+    }
+
+    public static Par<ContaBancaria, ContaBancaria> transferir(String idOrigem, String idDestino, double valor) throws ContaInexistenteException {
+        ContaBancaria origem = ContaRepository.buscarContaPorID(idOrigem);
+        ContaBancaria destino = ContaRepository.buscarContaPorID(idDestino);
+
+        if (origem == null) {
+            throw new ContaInexistenteException("Conta de origem não encontrada!");
+        }
+        if (destino == null) {
+            throw new ContaInexistenteException("Conta de destino não encontrada!");
+        }
+
+        ContaService.transferir(origem, destino, valor);
+        return new Par<>(origem, destino);
+    }
+
+    public static void listarIDs() {
+        ContaRepository.listarIDs();
     }
 }
 

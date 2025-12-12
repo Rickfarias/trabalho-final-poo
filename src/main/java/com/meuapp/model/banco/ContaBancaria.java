@@ -39,6 +39,10 @@ public class ContaBancaria {
         return saldo;
     }
 
+    public void setSaldo(double saldo) {
+        this.saldo = saldo;
+    }
+
     public Pessoa getTitular() {
         return titular;
     }
@@ -49,16 +53,13 @@ public class ContaBancaria {
 
     public void sacar(double valor) {
         if (valor <= 0) {
-            // Lançamento de exceção personalizada para erro de argumento
             throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
         }
 
-        if (valor > this.saldo) {
-            // Lançamento da exceção de negócio personalizada
+        if (valor > saldo) {
             throw new SaldoInsuficienteException(String.format("Saldo de R$%.2f é insuficiente para o saque de R$%.2f.", this.saldo, valor));
         }
 
-        // Se o fluxo chegar aqui, o saque é válido
         this.saldo -= valor;
     }
 
@@ -70,29 +71,17 @@ public class ContaBancaria {
         this.saldo += valor;
     }
 
-    public void transferir(ContaBancaria destino, double valor) throws ContaInexistenteException {
-        if (valor <= 0) {
-            throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
-        }
-
-        if (destino == null) {
-            throw new ContaInexistenteException("Conta destino inexistente!");
-        }
-
-        sacar(valor);
-        destino.depositar(valor);
-    }
-
     @Override
     public String toString() {
         return String.format(
                 """
                 Conta Bancaria:
                 ID: %s,
-                Titular: %s
+                Titular: %s,
                 Agência: Banco UFC,
+                Saldo: %.2f
                 """,
-                id, titular);
+                id, titular.getNome(), saldo);
     }
 
 }
