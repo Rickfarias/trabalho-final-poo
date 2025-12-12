@@ -3,6 +3,7 @@ package main.java.com.meuapp.model.banco;
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.ValorInvalidoException;
+import main.java.com.meuapp.repository.ContaRepository;
 
 import java.util.Random;
 
@@ -20,7 +21,7 @@ public class ContaBancaria {
     private static int contadorConta = 0;
 
     public ContaBancaria(Pessoa titular, double saldoInicial) {
-        this.id = gerarId();
+        this.id = ContaRepository.gerarId();
         this.titular = titular;
         this.saldo = saldoInicial;
 
@@ -28,7 +29,7 @@ public class ContaBancaria {
     }
 
     public ContaBancaria(Pessoa titular) {
-        this.id = gerarId();
+        this.id = ContaRepository.gerarId();
         this.titular = titular;
 
         contadorConta++;
@@ -45,11 +46,6 @@ public class ContaBancaria {
     public String getId() {
         return id;
     }
-
-    public String gerarId() {
-        return String.valueOf(Math.abs(new Random().nextInt(10_000)));
-    }
-
 
     public void sacar(double valor) {
         if (valor <= 0) {
