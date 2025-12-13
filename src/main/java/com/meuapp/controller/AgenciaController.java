@@ -109,8 +109,8 @@ public class AgenciaController {
             double valor = InputUtil.inputDouble("Insira o valor da transferência");
 
             var resultado = AgenciaService.transferir(idOrigem, idDestino, valor);
-            ContaBancaria origem = resultado.primeiro;
-            ContaBancaria destino = resultado.segundo;
+            ContaBancaria origem = resultado.primeiro();
+            ContaBancaria destino = resultado.segundo();
 
             InputUtil.info(String.format("""
                 Transferência concluída!
