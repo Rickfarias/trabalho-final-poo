@@ -8,22 +8,32 @@ import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.ValorInvalidoException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
-import main.java.com.meuapp.repository.ContaRepository;
 
 public class ContaService {
-    public static void depositar(ContaBancaria conta, double valor) {
+    public static void depositar(ContaBancaria conta, double valor) throws ContaInexistenteException {
         if (conta == null) {
-            throw new IllegalArgumentException("A conta não pode ser nula");
+            throw new ContaInexistenteException("A conta não pode ser nula");
         }
 
-        conta.depositar(valor);
+        if (valor <= 0) {
+            throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
+        }
+
+        conta.setSaldo(conta.getSaldo() + valor);
     }
 
-    public static void sacar(ContaBancaria conta, double valor) {
+    public static void sacar(ContaBancaria conta, double valor) throws ContaInexistenteException {
         if (conta == null) {
-            throw new IllegalArgumentException("A conta não pode ser nula");
+            throw new ContaInexistenteException("A conta não pode ser nula");
         }
-        conta.sacar(valor);
+        if (valor <= 0) {
+            throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
+        }
+
+        if (valor > conta.getSaldo()) {
+            throw new SaldoInsuficienteException(String.format("Saldo de R$%.2f é insuficiente para o saque de R$%.2f.", conta.getSaldo(), valor));
+        }
+        conta.setSaldo(conta.getSaldo() - valor);
     }
 
     public static void transferir(ContaBancaria origem, ContaBancaria destino, double valor) throws ContaInexistenteException{
@@ -44,5 +54,4 @@ public class ContaService {
         origem.setSaldo(origem.getSaldo() - valor);
         destino.setSaldo(destino.getSaldo() + valor);
     }
-
 }

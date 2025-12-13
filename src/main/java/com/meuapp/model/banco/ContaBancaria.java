@@ -1,11 +1,7 @@
 package main.java.com.meuapp.model.banco;
 
-import main.java.com.meuapp.exception.ContaInexistenteException;
-import main.java.com.meuapp.exception.SaldoInsuficienteException;
-import main.java.com.meuapp.exception.ValorInvalidoException;
 import main.java.com.meuapp.repository.ContaRepository;
 
-import java.util.Random;
 
 /*
  *  TODO:
@@ -50,26 +46,6 @@ public class ContaBancaria {
 
     public String getId() {
         return id;
-    }
-
-    public void sacar(double valor) {
-        if (valor <= 0) {
-            throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
-        }
-
-        if (valor > saldo) {
-            throw new SaldoInsuficienteException(String.format("Saldo de R$%.2f é insuficiente para o saque de R$%.2f.", this.saldo, valor));
-        }
-
-        this.saldo -= valor;
-    }
-
-    public void depositar(double valor) {
-        if (valor <= 0) {
-            throw new ValorInvalidoException(String.format("Valor inválido: %.2f.", valor));
-        }
-
-        this.saldo += valor;
     }
 
     @Override

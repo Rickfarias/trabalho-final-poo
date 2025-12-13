@@ -36,11 +36,11 @@ public class AgenciaService {
         return conta;
     }
     
-    public static void saque(ContaBancaria conta, double valor) {
+    public static void saque(ContaBancaria conta, double valor) throws ContaInexistenteException {
         ContaService.sacar(conta, valor);
     }
 
-    public static void deposito(ContaBancaria conta, double valor) {
+    public static void deposito(ContaBancaria conta, double valor) throws ContaInexistenteException {
         ContaService.depositar(conta, valor);
     }
 

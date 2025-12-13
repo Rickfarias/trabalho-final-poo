@@ -77,6 +77,8 @@ public class AgenciaController {
 
         } catch (SaldoInsuficienteException | ValorInvalidoException e) {
             InputUtil.error(e.getMessage(), "ERRO");
+        } catch (ContaInexistenteException e) {
+            InputUtil.warn(e.getMessage(), "AVISO");
         }
     }
 
@@ -91,6 +93,8 @@ public class AgenciaController {
                 """, deposito, conta.getSaldo()));
         } catch (SaldoInsuficienteException e) {
             InputUtil.error(e.getMessage(), "ERRO");
+        } catch (ContaInexistenteException e) {
+            InputUtil.warn(e.getMessage(), "AVISO");
         }
 
     }
