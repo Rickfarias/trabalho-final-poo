@@ -9,7 +9,7 @@ import java.util.Random;
 
 /*
  *  TODO:
- *      Deixar todas as regras em ContaService, transformar conta bancaria em POJO (Plain Old Java Object)
+ *      Deixar todas as regras em ContaService, transformar ContaBancaria em POJO (Plain Old Java Object)
  *
  */
 
