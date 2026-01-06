@@ -1,26 +1,35 @@
 package main.java.com.meuapp.model.varejo;
 
-import javax.swing.*;
-import java.util.ArrayList;
+import main.java.com.meuapp.model.loja.Categoria;
+import main.java.com.meuapp.model.loja.Contato;
+import main.java.com.meuapp.model.loja.Endereco;
+import main.java.com.meuapp.model.loja.StatusLoja;
 
-/*
-* TODO: verificar se vale a pena utilizar, melhorando como está ou é melhor começar outra classe do 0
-* */
+import javax.swing.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 
 public class Loja {
 
-    ArrayList<Produto> produtos = new ArrayList<>();
     private String nomeLoja;
-    private String localizacao;
-
+    private String cnpj;
+    private Endereco endereco;
+    private Categoria categoria;
+    private Contato contato;
+    private StatusLoja statusLoja;
+    private BigDecimal caixaLoja;
 
     public Loja() {
     }
 
-    public Loja(ArrayList<Produto> produtos, String nomeLoja, String localizacao) {
-        this.produtos = produtos;
+    public Loja(String nomeLoja, String cnpj, Endereco endereco, Categoria categoria, Contato contato, StatusLoja statusLoja, BigDecimal caixaLoja) {
         this.nomeLoja = nomeLoja;
-        this.localizacao = localizacao;
+        this.cnpj = cnpj;
+        this.endereco = endereco;
+        this.categoria = categoria;
+        this.contato = contato;
+        this.statusLoja = statusLoja;
+        this.caixaLoja = caixaLoja;
     }
 
     public String getNomeLoja() {
@@ -31,52 +40,51 @@ public class Loja {
         this.nomeLoja = nomeLoja;
     }
 
-    public String getLocalizacao() {
-        return localizacao;
+    public String getCnpj() {
+        return cnpj;
     }
 
-    public void setLocalizacao(String localizacao) {
-        this.localizacao = localizacao;
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
     }
 
-    public void addProdutos(Produto p) {
-        produtos.add(p);
+    public Endereco getEndereco() {
+        return endereco;
     }
 
-    public ArrayList<Produto> getProdutos() {
-        return produtos;
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
     }
 
-    public void cadastroLoja() {
-        JOptionPane.showMessageDialog(null, """
-                    ------------------------- LOJA -------------------------
-                    Aqui voce podera cadastrar a sua loja
-                    -----------------------------------------------------------
-                    """);
+    public Categoria getCategoria() {
+        return categoria;
+    }
 
-        nomeLoja = JOptionPane.showInputDialog("Insira o nome da loja");
-        localizacao = JOptionPane.showInputDialog("Insira o endereco da loja");
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
 
-        JOptionPane.showMessageDialog(null, "Agora seguiremos para o cadastro dos 5 produtos de sua loja");
+    public Contato getContato() {
+        return contato;
+    }
 
-        for (int i  = 0; i < 5; i++) {
-            String nome = JOptionPane.showInputDialog("Insira o nome do produto " + (i + 1));
-            double preco = Double.parseDouble(JOptionPane.showInputDialog("Insira o valor unitario do produto " + (i + 1)));
-            int qtd = Integer.parseInt(JOptionPane.showInputDialog("Insira a quantidade do produto " + (i + 1)));
+    public void setContato(Contato contato) {
+        this.contato = contato;
+    }
 
-            Produto p = new Produto(nome, preco, qtd);
+    public StatusLoja getStatusLoja() {
+        return statusLoja;
+    }
 
-            addProdutos(p);
-        }
+    public void setStatusLoja(StatusLoja statusLoja) {
+        this.statusLoja = statusLoja;
+    }
 
-        StringBuilder sb = new StringBuilder("Aqui estao os produtos cadastrados\n");
+    public BigDecimal getCaixaLoja() {
+        return caixaLoja;
+    }
 
-        for (Produto p : getProdutos()) {
-            sb.append(p.toString()).append("\n");
-        }
-
-        JOptionPane.showMessageDialog(null, sb.toString());
+    public void setCaixaLoja(BigDecimal caixaLoja) {
+        this.caixaLoja = caixaLoja;
     }
 }
-
-

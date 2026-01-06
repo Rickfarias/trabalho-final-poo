@@ -22,6 +22,6 @@ public class Pix extends Pagamento {
     public void processarPgto() {
         JOptionPane.showMessageDialog(null, "Pagamento de R$ " + getValor() +
                 " foi realizado com a identificacao do CPF: " + id);
-
+        
     }
 }

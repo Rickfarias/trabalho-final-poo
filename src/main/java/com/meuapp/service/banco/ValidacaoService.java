@@ -24,5 +24,7 @@ public class ValidacaoService {
         }
     }
 
-
+    public static String validarCPF(String cpf) {
+        return null;
+    }
 }
