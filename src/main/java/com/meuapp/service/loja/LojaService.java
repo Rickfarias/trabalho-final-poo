@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class LojaService {
     public static Loja cadastrarLoja(
             String nomeLoja,
-                String cnpj,
+            String cnpj,
             Endereco endereco,
             Categoria categoria,
             Contato contato,

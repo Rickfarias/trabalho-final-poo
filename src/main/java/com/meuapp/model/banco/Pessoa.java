@@ -7,11 +7,6 @@ public class Pessoa {
     private String email;
     private String endereco;
 
-    private static int contadorPessoa = 0;
-
-    public Pessoa() {
-        contadorPessoa++;
-    }
 
     public Pessoa(String nome, String senha, String cpf, String email, String endereco) {
         this.nome = nome;
@@ -20,8 +15,6 @@ public class Pessoa {
         this.email = email;
         this.endereco = endereco;
 
-
-        contadorPessoa++;
     }
 
     public String getNome() {
@@ -62,10 +55,6 @@ public class Pessoa {
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
-    }
-
-    public static int getContadorPessoa() {
-        return contadorPessoa;
     }
 
     @Override
