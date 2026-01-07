@@ -14,14 +14,53 @@ import main.java.com.meuapp.repository.LojaRepository;
 import java.math.BigDecimal;
 
 public class LojaService {
-    public static Loja cadastrarLoja(String nomeLoja, String cnpj, Endereco endereco, Categoria categoria, Contato contato, StatusLoja statusLoja, BigDecimal caixaLoja) {
-        ValidacaoLojaService.validarCNPJ(cnpj);
-        ValidacaoLojaService.validarEmail(contato.getEmail());
-        ValidacaoLojaService.validarTelefone(contato.getTelefone());
-        ValidacaoLojaService.validarTelefone(endereco.getCEP());
-        ValidacaoLojaService.validarNumeroCasa(endereco.getNumero());
+    public static Loja cadastrarLoja(
+            String nomeLoja,
+                String cnpj,
+            Endereco endereco,
+            Categoria categoria,
+            Contato contato,
+            StatusLoja statusLoja,
+            BigDecimal caixaLoja) {
 
-        Loja loja = new Loja(nomeLoja,  cnpj, endereco, categoria, contato, statusLoja, caixaLoja);
+        if (nomeLoja == null || nomeLoja.isBlank()) {
+            throw new IllegalArgumentException("Nome da loja é obrigatório");
+        }
+
+        if (statusLoja == null) {
+            throw new IllegalArgumentException("Status da loja é obrigatório");
+        }
+
+        if (caixaLoja == null || caixaLoja.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Caixa da loja inválido");
+        }
+
+        if (endereco == null) {
+            throw new IllegalArgumentException("Endereço é obrigatório.");
+        }
+
+        if (contato == null) {
+            throw new IllegalArgumentException("Contato é obrigatório.");
+        }
+
+        if (categoria == null) {
+            throw new IllegalArgumentException("Endereço é obrigatório.");
+        }
+
+        cnpj = ValidacaoLojaService.validarCNPJ(cnpj);
+        contato.setEmail(ValidacaoLojaService.validarEmail(contato.getEmail()));
+        contato.setTelefone(ValidacaoLojaService.validarTelefone(contato.getTelefone()));
+        endereco.setCEP(ValidacaoLojaService.validarCEP(endereco.getCEP()));
+        endereco.setNumero(ValidacaoLojaService.validarNumeroCasa(endereco.getNumero()));
+
+        Loja loja = new Loja(
+                nomeLoja.trim(),
+                cnpj,
+                endereco,
+                categoria,
+                contato,
+                statusLoja,
+                caixaLoja);
 
         LojaRepository.salvarLoja(loja);
 
