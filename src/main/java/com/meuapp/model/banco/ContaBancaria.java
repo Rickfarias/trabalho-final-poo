@@ -2,14 +2,6 @@ package main.java.com.meuapp.model.banco;
 
 import main.java.com.meuapp.repository.ContaRepository;
 
-
-/*
- *  TODO:
- *      Deixar todas as regras em ContaService, transformar ContaBancaria em POJO (Plain Old Java Object)
- *
- */
-
-
 public class ContaBancaria {
     private String id;
     private Pessoa titular;
