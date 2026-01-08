@@ -1,5 +1,6 @@
 package main.java.com.meuapp.model.varejo;
 
+import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.loja.Categoria;
 import main.java.com.meuapp.model.loja.Contato;
 import main.java.com.meuapp.model.loja.Endereco;
@@ -18,11 +19,20 @@ public class Loja {
     private Contato contato;
     private StatusLoja statusLoja;
     private BigDecimal caixaLoja;
+    private ContaBancaria contaEmpresarial;
 
     public Loja() {
     }
 
-    public Loja(String nomeLoja, String cnpj, Endereco endereco, Categoria categoria, Contato contato, StatusLoja statusLoja, BigDecimal caixaLoja) {
+    public Loja(
+            String nomeLoja,
+            String cnpj,
+            Endereco endereco,
+            Categoria categoria,
+            Contato contato,
+            StatusLoja statusLoja,
+            BigDecimal caixaLoja,
+            ContaBancaria contaEmpresarial) {
         this.nomeLoja = nomeLoja;
         this.cnpj = cnpj;
         this.endereco = endereco;
@@ -30,6 +40,7 @@ public class Loja {
         this.contato = contato;
         this.statusLoja = statusLoja;
         this.caixaLoja = caixaLoja;
+        this.contaEmpresarial = contaEmpresarial;
     }
 
     public String getNomeLoja() {
@@ -86,5 +97,13 @@ public class Loja {
 
     public void setCaixaLoja(BigDecimal caixaLoja) {
         this.caixaLoja = caixaLoja;
+    }
+
+    public ContaBancaria getContaEmpresarial() {
+        return contaEmpresarial;
+    }
+
+    public void setContaEmpresarial(ContaBancaria contaEmpresarial) {
+        this.contaEmpresarial = contaEmpresarial;
     }
 }

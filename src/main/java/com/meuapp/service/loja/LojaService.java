@@ -5,6 +5,7 @@ package main.java.com.meuapp.service.loja;
 * TODO: Fazer método para listar as Lojas existentes
 */
 
+import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.loja.Categoria;
 import main.java.com.meuapp.model.loja.Contato;
 import main.java.com.meuapp.model.loja.Endereco;
@@ -22,7 +23,8 @@ public class LojaService {
             Categoria categoria,
             Contato contato,
             StatusLoja statusLoja,
-            BigDecimal caixaLoja) {
+            BigDecimal caixaLoja,
+            ContaBancaria contaEmpresarial) {
 
         Loja loja = new Loja(
                 nomeLoja.trim(),
@@ -31,7 +33,8 @@ public class LojaService {
                 categoria,
                 contato,
                 statusLoja,
-                caixaLoja
+                caixaLoja,
+                contaEmpresarial
         );
 
         LojaRepository.salvarLoja(loja);
@@ -100,5 +103,6 @@ public class LojaService {
     }
 
     public static void listarLojas() {
+        LojaRepository.listarLojas();
     }
 }

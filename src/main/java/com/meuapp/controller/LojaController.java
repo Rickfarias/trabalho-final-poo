@@ -1,5 +1,7 @@
 package main.java.com.meuapp.controller;
 
+import main.java.com.meuapp.model.banco.ContaBancaria;
+import main.java.com.meuapp.model.banco.Pessoa;
 import main.java.com.meuapp.model.loja.Categoria;
 import main.java.com.meuapp.model.loja.Contato;
 import main.java.com.meuapp.model.loja.Endereco;
@@ -99,6 +101,9 @@ public class LojaController {
         );
 
         BigDecimal caixaLoja = BigDecimal.ZERO;
+        ContaBancaria contaEmpresarial = InputUtil.inputValidado(
+                InputUtil.inputString("Insira o nome do titular da conta"),
+        );
 
 
         LojaService.cadastrarLoja(
@@ -108,7 +113,8 @@ public class LojaController {
                 categoria,
                 contato,
                 statusLoja,
-                caixaLoja
+                caixaLoja,
+                contaEmpresarial
         );
 
         InputUtil.info("Loja cadastrada com sucesso!");
