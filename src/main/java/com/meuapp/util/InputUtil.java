@@ -1,6 +1,10 @@
 package main.java.com.meuapp.util;
 
+import main.java.com.meuapp.exception.CampoInvalidoException;
+
 import javax.swing.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class InputUtil {
 
@@ -50,9 +54,24 @@ public class InputUtil {
         JOptionPane.showMessageDialog(null, mensagem, titulo, JOptionPane.WARNING_MESSAGE);
     }
 
-
     public static void error(String mensagem, String titulo) {
         JOptionPane.showMessageDialog(null, mensagem, titulo, JOptionPane.ERROR_MESSAGE);
+    }
+
+    public static <T> T inputValidado(Supplier<T> fornecedor, Consumer<T> validador) {
+        while (true) {
+            try {
+                T valor = fornecedor.get();
+                validador.accept(valor);
+                return valor;
+            } catch (IllegalArgumentException e) {
+                info(e.getMessage());
+            }
+        }
+    }
+
+    public static int inputOpcao(String menuLoja, String s, String[] opcoes) {
+        return 0;
     }
 }
 

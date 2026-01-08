@@ -26,8 +26,7 @@ public class ValidacaoLojaService {
             throw new IllegalArgumentException("Email inválido");
         }
 
-        email = email.trim();
-        return email;
+        return email.trim();
     }
 
     public static String validarCEP(String cep) {
@@ -67,7 +66,13 @@ public class ValidacaoLojaService {
             throw new IllegalArgumentException("Número de celular inválido");
         }
 
-        return "55" + removerNaoNumeros(telefone).substring(0, 11);
+        String numeros = removerNaoNumeros(telefone);
+
+        if (numeros.length() != 11) {
+            throw new IllegalArgumentException("Número de celular deve conter 11 dígitos");
+        }
+
+        return "55" + numeros;
     }
 
     private static String removerNaoNumeros(String valor) {
