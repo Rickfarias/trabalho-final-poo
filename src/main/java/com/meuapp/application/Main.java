@@ -1,6 +1,7 @@
 package main.java.com.meuapp.application;
 
 import main.java.com.meuapp.controller.AgenciaController;
+import main.java.com.meuapp.controller.LojaController;
 
 public class Main {
     public static void main(String[] args) {
@@ -14,6 +15,8 @@ public class Main {
         sp.gerarRelatorio();
         */
         
-        AgenciaController.menuPrincipalUI();
+        /*AgenciaController.menuPrincipalUI();*/
+
+        LojaController.menuCadastroLoja();
     }
 }

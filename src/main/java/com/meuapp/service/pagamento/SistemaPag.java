@@ -18,7 +18,7 @@ import javax.swing.*;
  * tambem separar cada Menu em UIs diferentes para quebrar em funções menores, de mais facil manuntenção...
  * camada de service, validações: SistemaPagService
  */
-
+/*
 
 public class SistemaPag {
     private double saldo;
@@ -212,3 +212,4 @@ public class SistemaPag {
         JOptionPane.showMessageDialog(null, sb.toString());
     }
 }
+ */

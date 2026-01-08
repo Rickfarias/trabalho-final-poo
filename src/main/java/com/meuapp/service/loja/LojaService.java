@@ -12,6 +12,7 @@ import main.java.com.meuapp.model.varejo.Loja;
 import main.java.com.meuapp.repository.LojaRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class LojaService {
     public static Loja cadastrarLoja(
@@ -25,6 +26,10 @@ public class LojaService {
 
         if (nomeLoja == null || nomeLoja.isBlank()) {
             throw new IllegalArgumentException("Nome da loja é obrigatório");
+        }
+
+        if (cnpj == null || cnpj.isBlank()) {
+            throw new IllegalArgumentException("CNPJ é obrigatório");
         }
 
         if (statusLoja == null) {
@@ -44,7 +49,7 @@ public class LojaService {
         }
 
         if (categoria == null) {
-            throw new IllegalArgumentException("Endereço é obrigatório.");
+            throw new IllegalArgumentException("Categoria é obrigatória.");
         }
 
         cnpj = ValidacaoLojaService.validarCNPJ(cnpj);
