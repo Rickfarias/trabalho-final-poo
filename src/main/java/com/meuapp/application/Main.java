@@ -5,6 +5,7 @@ import main.java.com.meuapp.controller.LojaController;
 
 public class Main {
     public static void main(String[] args) {
+        LojaController lojaController = new LojaController();
         
         /*
         Loja loja = new Loja();
@@ -17,6 +18,6 @@ public class Main {
         
         /*AgenciaController.menuPrincipalUI();*/
 
-        LojaController.menuCadastroLoja();
+        lojaController.menuCadastroLoja();
     }
 }

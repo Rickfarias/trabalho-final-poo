@@ -10,7 +10,9 @@ import main.java.com.meuapp.exception.ValorInvalidoException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
 
 public class ContaService {
-    public static void depositar(ContaBancaria conta, double valor) throws ContaInexistenteException {
+
+
+    public void depositar(ContaBancaria conta, double valor) throws ContaInexistenteException {
         if (conta == null) {
             throw new ContaInexistenteException("A conta não pode ser nula");
         }
@@ -22,7 +24,7 @@ public class ContaService {
         conta.setSaldo(conta.getSaldo() + valor);
     }
 
-    public static void sacar(ContaBancaria conta, double valor) throws ContaInexistenteException {
+    public void sacar(ContaBancaria conta, double valor) throws ContaInexistenteException {
         if (conta == null) {
             throw new ContaInexistenteException("A conta não pode ser nula");
         }
@@ -36,7 +38,7 @@ public class ContaService {
         conta.setSaldo(conta.getSaldo() - valor);
     }
 
-    public static void transferir(ContaBancaria origem, ContaBancaria destino, double valor) throws ContaInexistenteException{
+    public void transferir(ContaBancaria origem, ContaBancaria destino, double valor) throws ContaInexistenteException{
         if (origem == null) {
             throw new ContaInexistenteException("Origem não existe");
         }

@@ -1,11 +1,11 @@
 package main.java.com.meuapp.controller;
 
 import main.java.com.meuapp.model.banco.ContaBancaria;
-import main.java.com.meuapp.model.banco.Pessoa;
 import main.java.com.meuapp.model.loja.Categoria;
 import main.java.com.meuapp.model.loja.Contato;
 import main.java.com.meuapp.model.loja.Endereco;
 import main.java.com.meuapp.model.loja.StatusLoja;
+import main.java.com.meuapp.service.banco.AgenciaService;
 import main.java.com.meuapp.service.loja.LojaService;
 import main.java.com.meuapp.service.loja.ValidacaoLojaService;
 import main.java.com.meuapp.util.EnumUtil;
@@ -14,19 +14,23 @@ import main.java.com.meuapp.util.InputUtil;
 import java.math.BigDecimal;
 
 public class LojaController {
-    public static void menuPrincipalLoja() {
+    AgenciaService agenciaService;
+    ValidacaoLojaService validacaoLojaService;
+    LojaService lojaService;
+
+    public void menuPrincipalLoja() {
         String opcoes = """
                     1 - Cadastrar loja
                     2 - Listar lojas
-                    0 - Voltar                
-                """;
+                    0 - Voltar
+                    """;
 
         while (true) {
             int escolha = InputUtil.inputInt(opcoes);
 
             switch (escolha) {
                 case 1 -> menuCadastroLoja();
-                case 2 -> LojaService.listarLojas();
+                case 2 -> lojaService.listarLojas();
                 case 0 -> {
                     return;
                 }
@@ -36,21 +40,21 @@ public class LojaController {
     }
 
 
-    public static void menuCadastroLoja() {
+    public void menuCadastroLoja() {
 
         String nomeLoja = InputUtil.inputValidado(
                 () -> InputUtil.inputString("Insira o nome da loja"),
-                LojaService::validarNomeLoja
+                lojaService::validarNomeLoja
         );
 
         String cnpj = InputUtil.inputValidado(
                 () -> InputUtil.inputString("Insira o CNPJ"),
-                ValidacaoLojaService::validarCNPJ
+                validacaoLojaService::validarCNPJ
         );
 
         Endereco end = InputUtil.inputValidado(
                 () -> {
-                    String cep = ValidacaoLojaService.validarCEP(
+                    String cep = validacaoLojaService.validarCEP(
                             InputUtil.inputString("Insira o CEP")
                     );
                     String estado = InputUtil.inputString("Insira o estado");
@@ -59,12 +63,12 @@ public class LojaController {
                     String rua = InputUtil.inputString("Insira a rua");
                     String numero = InputUtil.inputValidado(
                             () -> InputUtil.inputString("Insira o número (ou s/n)"),
-                            ValidacaoLojaService::validarNumeroCasa
+                            validacaoLojaService::validarNumeroCasa
                     );
 
                     return new Endereco(cep, estado, cidade, bairro, rua, numero);
                 },
-                LojaService::validarEndereco
+                lojaService::validarEndereco
         );
 
 
@@ -74,7 +78,7 @@ public class LojaController {
                         "Selecione a categoria:",
                         Categoria.values()
                 ),
-                LojaService::validarCategoria
+                lojaService::validarCategoria
         );
 
         Contato contato = InputUtil.inputValidado(
@@ -82,12 +86,12 @@ public class LojaController {
                     String telefone = InputUtil.inputString("Insira o telefone");
                     String email = InputUtil.inputString("Insira o email");
 
-                    telefone = ValidacaoLojaService.validarTelefone(telefone);
-                    email = ValidacaoLojaService.validarEmail(email);
+                    telefone = validacaoLojaService.validarTelefone(telefone);
+                    email = validacaoLojaService.validarEmail(email);
 
                     return new Contato(telefone, email);
                 },
-                LojaService::validarContato
+                lojaService::validarContato
         );
 
 
@@ -97,16 +101,23 @@ public class LojaController {
                         "Selecione o status:",
                         StatusLoja.values()
                 ),
-                LojaService::validarStatusLoja
+                lojaService::validarStatusLoja
         );
+
+        String senhaContaLoja = InputUtil.inputString(
+                "Crie uma senha para sua loja");
 
         BigDecimal caixaLoja = BigDecimal.ZERO;
-        ContaBancaria contaEmpresarial = InputUtil.inputValidado(
-                InputUtil.inputString("Insira o nome do titular da conta"),
+        ContaBancaria contaEmpresarial = agenciaService.criarContaLoja(
+                nomeLoja,
+                senhaContaLoja,
+                cnpj,
+                contato.getEmail(),
+                end
         );
 
 
-        LojaService.cadastrarLoja(
+        lojaService.cadastrarLoja(
                 nomeLoja,
                 cnpj,
                 end,
@@ -117,6 +128,13 @@ public class LojaController {
                 contaEmpresarial
         );
 
-        InputUtil.info("Loja cadastrada com sucesso!");
+        InputUtil.info("Loja cadastrada com sucesso! ID da Conta Bancária: " + contaEmpresarial.getId());
+    }
+
+    public void menuRealizarComprar() {
+        InputUtil.info("--- NOVA COMPRA ---");
+        String cnpjLoja = InputUtil.inputString("Digite o cnpj da loja vendedora");
+            
+
     }
 }

@@ -1,7 +1,7 @@
 package main.java.com.meuapp.service.loja;
 
 public class ValidacaoLojaService {
-    public static String validarCNPJ(String cnpj) {
+    public String validarCNPJ(String cnpj) {
         if (cnpj == null || cnpj.isBlank()) {
             throw new IllegalArgumentException("CNPJ é obrigatório.");
         }
@@ -15,7 +15,7 @@ public class ValidacaoLojaService {
         return cnpj.replaceAll("\\D", "");
     }
 
-    public static String validarEmail(String email) {
+    public String validarEmail(String email) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("email é obrigatório.");
         }
@@ -29,7 +29,7 @@ public class ValidacaoLojaService {
         return email.trim();
     }
 
-    public static String validarCEP(String cep) {
+    public String validarCEP(String cep) {
         if (cep == null || cep.isBlank()) {
             throw new IllegalArgumentException("CEP é obrigatório.");
         }
@@ -43,7 +43,7 @@ public class ValidacaoLojaService {
         return cep.replaceAll("\\D", "");
     }
 
-    public static String validarNumeroCasa(String numeroCasa) {
+    public String validarNumeroCasa(String numeroCasa) {
         if (numeroCasa == null || numeroCasa.isBlank()) {
             throw new IllegalArgumentException("Numero da casa é obrigatório.");
         }
@@ -55,7 +55,7 @@ public class ValidacaoLojaService {
         return numeroCasa;
     }
 
-    public static String validarTelefone(String telefone) {
+    public String validarTelefone(String telefone) {
         if (telefone == null || telefone.isBlank()) {
             throw new IllegalArgumentException("Número de celular é obrigatório.");
         }
@@ -75,7 +75,7 @@ public class ValidacaoLojaService {
         return "55" + numeros;
     }
 
-    private static String removerNaoNumeros(String valor) {
+    private String removerNaoNumeros(String valor) {
         return valor.replaceAll("\\D", "");
     }
 }

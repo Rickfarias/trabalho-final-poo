@@ -11,7 +11,7 @@ import main.java.com.meuapp.util.InputUtil;
 
 public class ValidacaoService {
 
-    public static String confirmarSenha(String senha) {
+    public String confirmarSenha(String senha) {
         while (true) {
             String confirmar = InputUtil.inputString("Confirme a senha:");
 
@@ -24,7 +24,7 @@ public class ValidacaoService {
         }
     }
 
-    public static String validarCPF(String cpf) {
+    public String validarCPF(String cpf) {
         return null;
     }
 }

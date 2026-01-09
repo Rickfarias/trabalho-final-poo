@@ -11,7 +11,14 @@ import main.java.com.meuapp.service.banco.ValidacaoService;
 import main.java.com.meuapp.util.InputUtil;
 
 public class AgenciaController {
-    public static void menuPrincipalUI() {
+    private AgenciaService agenciaService;
+    private ValidacaoService validacaoService;
+
+    public AgenciaController(AgenciaService agenciaService) {
+        this.agenciaService = agenciaService;
+    }
+
+    public void menuPrincipalUI() {
         String menu = """
                Bem-vindo(a) ao Banco UFC!
                1 - Criar conta
@@ -37,25 +44,25 @@ public class AgenciaController {
         }
     }
 
-    public static void criarContaUI() {
+    public void criarContaUI() {
         String nome = InputUtil.inputString("Insira o seu nome completo");
         String senha = InputUtil.inputString("Insira a senha da conta");
-        senha = ValidacaoService.confirmarSenha(senha);
+        senha = validacaoService.confirmarSenha(senha);
         String cpf = InputUtil.inputString("Insira o seu cpf");
         String email = InputUtil.inputString("Insira o seu email");
         String endereco = InputUtil.inputString("Insira o seu endereço");
 
-        ContaBancaria novaConta = AgenciaService.criarConta(nome, senha, cpf, email, endereco);
+        ContaBancaria novaConta = agenciaService.criarConta(nome, senha, cpf, email, endereco);
 
         InputUtil.info("Conta criada com sucesso! Seu id é: " + novaConta.getId());
     }
 
-    public static void acessarContaUI(){
+    public void acessarContaUI(){
         String idLogin = InputUtil.inputString("Digite o ID da conta");
         String senhaLogin = InputUtil.inputString("Digite a senha");
 
         try {
-            ContaBancaria conta = AgenciaService.acessarConta(idLogin, senhaLogin);
+            ContaBancaria conta = agenciaService.acessarConta(idLogin, senhaLogin);
             menuSecundarioUI(conta);
         } catch (ContaInexistenteException e) {
             InputUtil.warn(e.getMessage(), "AVISO");
@@ -64,11 +71,11 @@ public class AgenciaController {
         }
     }
 
-    public static void saqueUI(ContaBancaria conta) {
+    public void saqueUI(ContaBancaria conta) {
         double saque = InputUtil.inputDouble("Insira o valor do saque");
 
         try {
-            AgenciaService.saque(conta,saque);
+            agenciaService.saque(conta,saque);
 
             InputUtil.info(String.format("""
                     Saque de R$%.2f realizado com sucesso.
@@ -82,11 +89,11 @@ public class AgenciaController {
         }
     }
 
-    public static void depositarUI(ContaBancaria conta) {
+    public void depositarUI(ContaBancaria conta) {
         double deposito = InputUtil.inputDouble("Insira o valor do deposito");
 
         try {
-            AgenciaService.deposito(conta, deposito);
+            agenciaService.deposito(conta, deposito);
             InputUtil.info(String.format("""
                 Deposito de %.2f realizado com sucesso.
                 Novo saldo: %.2f
@@ -99,8 +106,8 @@ public class AgenciaController {
 
     }
 
-    public static void transferirUI() {
-        AgenciaService.listarIDs();
+    public void transferirUI() {
+        agenciaService.listarIDs();
 
         String idOrigem = InputUtil.inputString("Insira o ID da conta de origem");
         String idDestino = InputUtil.inputString("Insira o ID da conta destino");
@@ -108,7 +115,7 @@ public class AgenciaController {
         try {
             double valor = InputUtil.inputDouble("Insira o valor da transferência");
 
-            var resultado = AgenciaService.transferir(idOrigem, idDestino, valor);
+            var resultado = agenciaService.transferir(idOrigem, idDestino, valor);
             ContaBancaria origem = resultado.primeiro();
             ContaBancaria destino = resultado.segundo();
 
@@ -128,7 +135,7 @@ public class AgenciaController {
     }
 
 
-    public static void menuSecundarioUI(ContaBancaria conta) {
+    public void menuSecundarioUI(ContaBancaria conta) {
 
 
         // TODO: Ver por que fica Titular: Nome e nao so um deles

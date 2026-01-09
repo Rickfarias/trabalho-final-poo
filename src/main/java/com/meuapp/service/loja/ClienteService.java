@@ -7,6 +7,7 @@ import main.java.com.meuapp.service.banco.ContaService;
 
 public class ClienteService {
     private ClienteRepository clienteRepository;
+    private ContaService contaService;
 
     public ClienteService(ClienteRepository repository) {
         this.clienteRepository = repository;
@@ -20,14 +21,14 @@ public class ClienteService {
         Cliente cliente = clienteRepository.buscarPorCpf(cpf)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontado"));
 
-        ContaService.depositar(cliente.getConta(), valor);
+        contaService.depositar(cliente.getConta(), valor);
     }
 
     public void realizarSaque(String cpf, double valor) throws ContaInexistenteException {
         Cliente cliente = clienteRepository.buscarPorCpf(cpf)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        ContaService.sacar(cliente.getConta(), valor);
+        contaService.sacar(cliente.getConta(), valor);
     }
 
     public double consultarSaldo(String cpf) {
