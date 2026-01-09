@@ -14,8 +14,9 @@ public class AgenciaController {
     private AgenciaService agenciaService;
     private ValidacaoService validacaoService;
 
-    public AgenciaController(AgenciaService agenciaService) {
+    public AgenciaController(AgenciaService agenciaService, ValidacaoService validacaoService) {
         this.agenciaService = agenciaService;
+        this.validacaoService = validacaoService;
     }
 
     public void menuPrincipalUI() {
@@ -29,16 +30,15 @@ public class AgenciaController {
         while (true) {
             int opcao = InputUtil.inputInt(menu);
 
+            if (opcao == 0) {
+                return;
+            }
+
             switch (opcao) {
                 case 1 -> criarContaUI();
                 case 2 -> acessarContaUI();
-                case 0 -> {
-                    InputUtil.info("Simulação encerrada. Obrigado por usar o sistema!");
-                    return;
-                }
                 default -> {
                     InputUtil.info("Valor Inválido, tente novamente");
-                    return;
                 }
             }
         }

@@ -1,6 +1,5 @@
 package main.java.com.meuapp.repository;
 
-import main.java.com.meuapp.model.loja.Cliente;
 import main.java.com.meuapp.model.varejo.Loja;
 import main.java.com.meuapp.util.InputUtil;
 

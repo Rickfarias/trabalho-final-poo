@@ -1,4 +1,4 @@
-package main.java.com.meuapp.model.loja;
+package main.java.com.meuapp.model.loja.enums;
 
 public enum StatusLoja {
     ATIVA (1),

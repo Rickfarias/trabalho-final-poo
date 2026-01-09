@@ -1,14 +1,12 @@
 package main.java.com.meuapp.model.varejo;
 
 import main.java.com.meuapp.model.banco.ContaBancaria;
-import main.java.com.meuapp.model.loja.Categoria;
+import main.java.com.meuapp.model.loja.enums.Categoria;
 import main.java.com.meuapp.model.loja.Contato;
 import main.java.com.meuapp.model.loja.Endereco;
-import main.java.com.meuapp.model.loja.StatusLoja;
+import main.java.com.meuapp.model.loja.enums.StatusLoja;
 
-import javax.swing.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 public class Loja {
 

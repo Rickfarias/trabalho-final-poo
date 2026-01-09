@@ -16,7 +16,9 @@ public class AgenciaService {
     private ContaService contaService;
     private ContaRepository contaRepository;
 
-    public AgenciaService( ContaService contaService, ContaRepository contaRepository) {
+    public AgenciaService(
+            ContaService contaService,
+            ContaRepository contaRepository) {
         this.contaService = contaService;
         this.contaRepository = contaRepository;
     }

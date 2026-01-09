@@ -1,10 +1,10 @@
 package main.java.com.meuapp.controller;
 
 import main.java.com.meuapp.model.banco.ContaBancaria;
-import main.java.com.meuapp.model.loja.Categoria;
+import main.java.com.meuapp.model.loja.enums.Categoria;
 import main.java.com.meuapp.model.loja.Contato;
 import main.java.com.meuapp.model.loja.Endereco;
-import main.java.com.meuapp.model.loja.StatusLoja;
+import main.java.com.meuapp.model.loja.enums.StatusLoja;
 import main.java.com.meuapp.service.banco.AgenciaService;
 import main.java.com.meuapp.service.loja.LojaService;
 import main.java.com.meuapp.service.loja.ValidacaoLojaService;
@@ -18,22 +18,34 @@ public class LojaController {
     ValidacaoLojaService validacaoLojaService;
     LojaService lojaService;
 
+    public LojaController(
+            AgenciaService agenciaService,
+            ValidacaoLojaService validacaoLojaService,
+            LojaService lojaService) {
+        this.agenciaService = agenciaService;
+        this.validacaoLojaService = validacaoLojaService;
+        this.lojaService = lojaService;
+    }
+
     public void menuPrincipalLoja() {
         String opcoes = """
                     1 - Cadastrar loja
                     2 - Listar lojas
+                    3 - Acessar loja
                     0 - Voltar
                     """;
 
         while (true) {
             int escolha = InputUtil.inputInt(opcoes);
 
+            if (escolha == 0) {
+                return;
+            }
+
             switch (escolha) {
                 case 1 -> menuCadastroLoja();
                 case 2 -> lojaService.listarLojas();
-                case 0 -> {
-                    return;
-                }
+                case 3 -> menuAcessarLoja();
                 default -> InputUtil.info("Opção inválida.");
             }
         }
@@ -135,6 +147,10 @@ public class LojaController {
         InputUtil.info("--- NOVA COMPRA ---");
         String cnpjLoja = InputUtil.inputString("Digite o cnpj da loja vendedora");
             
+
+    }
+
+    public void menuAcessarLoja() {
 
     }
 }
