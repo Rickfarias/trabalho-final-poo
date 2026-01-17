@@ -1,9 +1,5 @@
 package main.java.com.meuapp.service.banco;
 
-/*
-* TODO: Adicionar regras de negocio de AgenciaBancaria aqui
-* */
-
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
@@ -96,4 +92,3 @@ public class AgenciaService {
         ContaRepository.listarIDs();
     }
 }
-

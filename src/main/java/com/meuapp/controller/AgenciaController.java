@@ -137,8 +137,6 @@ public class AgenciaController {
 
     public void menuSecundarioUI(ContaBancaria conta) {
 
-
-        // TODO: Ver por que fica Titular: Nome e nao so um deles
         InputUtil.info(String.format("""
                             Bem-vindo(a) ao Banco UFC.
                             Titular: %s

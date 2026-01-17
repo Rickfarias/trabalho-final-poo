@@ -16,6 +16,7 @@ import main.java.com.meuapp.repository.LojaRepository;
 import main.java.com.meuapp.service.banco.ContaService;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 public class LojaService {
     private ContaService contaService;
@@ -93,20 +94,17 @@ public class LojaService {
         }
     }
 
-
     public void validarEndereco(Endereco endereco) {
         if (endereco == null) {
             throw new IllegalArgumentException("Endereço é obrigatório.");
         }
     }
 
-
     public void validarContato(Contato contato) {
         if (contato == null) {
             throw new IllegalArgumentException("Contato é obrigatório.");
         }
     }
-
 
     public void validarCategoria(Categoria categoria) {
         if (categoria == null) {
@@ -117,4 +115,19 @@ public class LojaService {
     public void listarLojas() {
         lojaRepository.listarLojas();
     }
+
+    public Optional<String> buscarNomeDaLoja(String nomeLoja) {
+        return lojaRepository.buscarPorNome(nomeLoja).map(Loja::getNomeLoja);
+    }
+
+    public Optional<String> buscarCNPJDaLoja(String cnpj) {
+        return lojaRepository.buscarPorCnpj(cnpj).map(Loja::getCnpj);
+    }
+
+    public String listarProdutos(String nomeLoja) {
+        Optional<String> cnpj = lojaRepository.buscarPorNome(nomeLoja).map(Loja::getCnpj);
+
+        return null;
+    }
+
 }

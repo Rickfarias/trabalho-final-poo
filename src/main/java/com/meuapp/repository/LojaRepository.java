@@ -25,4 +25,9 @@ public class LojaRepository {
                 .findFirst();
     }
 
+    public Optional<Loja> buscarPorNome(String nomeLoja) {
+        return lojas.stream()
+                .filter(l -> l.getNomeLoja().equals(nomeLoja))
+                .findFirst();
+    }
 }

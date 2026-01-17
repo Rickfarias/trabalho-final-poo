@@ -144,9 +144,14 @@ public class LojaController {
     }
 
     public void menuRealizarComprar() {
-        InputUtil.info("--- NOVA COMPRA ---");
-        String cnpjLoja = InputUtil.inputString("Digite o cnpj da loja vendedora");
+        String nomeLoja = InputUtil.inputString("""
+                --------------- NOVA COMPRA ---------------
+                Digite o nome da loja de onde irá comprar
+                """);
+        String nomeFinal = lojaService.buscarNomeDaLoja(nomeLoja)
+                .orElseGet(() -> InputUtil.inputString("Loja não encontrada. Tente novamente: "));
             
+
 
     }
 
