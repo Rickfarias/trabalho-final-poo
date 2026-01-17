@@ -7,6 +7,8 @@ import main.java.com.meuapp.model.loja.Endereco;
 import main.java.com.meuapp.model.loja.enums.StatusLoja;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Loja {
 
@@ -18,9 +20,6 @@ public class Loja {
     private StatusLoja statusLoja;
     private BigDecimal caixaLoja;
     private ContaBancaria contaEmpresarial;
-
-    public Loja() {
-    }
 
     public Loja(
             String nomeLoja,
