@@ -1,19 +1,26 @@
 package main.java.com.meuapp.repository;
-import main.java.com.meuapp.model.varejo.Produto;
+import main.java.com.meuapp.model.produto.Produto;
 import main.java.com.meuapp.util.InputUtil;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class ProdutoRepository {
-    private static ArrayList<Produto> produtos = new ArrayList<>();
+    private static List<Produto> produtos = new ArrayList<>();
 
-    public static String buscarProdutoPorId(int idProduto){
+    public Optional<Produto> buscarProdutoPorId(String idProduto) {
         for (Produto p : produtos) {
-            if (p.getIdProduto() == idProduto) {
-                return p.getNomeProduto();
+            if (p.getIdProduto().equals(idProduto)) {
+                return Optional.of(p);
             }
         }
-        return null;
+        return Optional.empty();
+    }
+
+
+    public void salvar(Produto produto) {
+        produtos.add(produto);
     }
 
     public void listarProdutos() {

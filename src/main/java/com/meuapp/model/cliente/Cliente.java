@@ -1,4 +1,4 @@
-package main.java.com.meuapp.model.loja;
+package main.java.com.meuapp.model.cliente;
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.model.banco.ContaBancaria;

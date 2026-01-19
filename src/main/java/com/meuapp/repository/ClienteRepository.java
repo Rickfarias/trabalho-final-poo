@@ -1,6 +1,6 @@
 package main.java.com.meuapp.repository;
 
-import main.java.com.meuapp.model.loja.Cliente;
+import main.java.com.meuapp.model.cliente.Cliente;
 
 import java.util.ArrayList;
 import java.util.List;

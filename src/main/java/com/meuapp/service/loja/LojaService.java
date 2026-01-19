@@ -6,11 +6,12 @@ package main.java.com.meuapp.service.loja;
 */
 
 import main.java.com.meuapp.model.banco.ContaBancaria;
+import main.java.com.meuapp.model.loja.Fornecedor;
 import main.java.com.meuapp.model.loja.enums.Categoria;
 import main.java.com.meuapp.model.loja.Contato;
 import main.java.com.meuapp.model.loja.Endereco;
 import main.java.com.meuapp.model.loja.enums.StatusLoja;
-import main.java.com.meuapp.model.varejo.Loja;
+import main.java.com.meuapp.model.loja.Loja;
 import main.java.com.meuapp.repository.ClienteRepository;
 import main.java.com.meuapp.repository.LojaRepository;
 import main.java.com.meuapp.service.banco.ContaService;
@@ -120,6 +121,10 @@ public class LojaService {
         return lojaRepository.buscarPorNome(nomeLoja).map(Loja::getNomeLoja);
     }
 
+    public Optional<Loja> buscarLojaPorNome(String nomeLoja) {
+        return lojaRepository.buscarPorNome(nomeLoja);
+    }
+
     public Optional<String> buscarCNPJDaLoja(String cnpj) {
         return lojaRepository.buscarPorCnpj(cnpj).map(Loja::getCnpj);
     }
@@ -130,4 +135,10 @@ public class LojaService {
         return null;
     }
 
+    public void vincularFornecedor(String nomeLoja, Fornecedor fornecedor) {
+        Loja loja = lojaRepository.buscarPorNome(nomeLoja)
+                .orElseThrow(() -> new IllegalArgumentException("Loja não encontrada"));
+
+        loja.adicionarFornecedor(fornecedor);
+    }
 }

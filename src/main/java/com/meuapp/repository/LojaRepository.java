@@ -1,13 +1,14 @@
 package main.java.com.meuapp.repository;
 
-import main.java.com.meuapp.model.varejo.Loja;
+import main.java.com.meuapp.model.loja.Loja;
 import main.java.com.meuapp.util.InputUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class LojaRepository {
-    private static ArrayList<Loja> lojas = new ArrayList<>();
+    private static List<Loja> lojas = new ArrayList<>();
 
     public void salvarLoja(Loja loja) {
         lojas.add(loja);

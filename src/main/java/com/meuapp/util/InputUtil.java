@@ -70,6 +70,46 @@ public class InputUtil {
         }
     }
 
+    public static boolean inputBoolean(String mensagem) {
+
+        while (true) {
+            String resposta = JOptionPane.showInputDialog(
+                    null,
+                    mensagem + "\nDigite: s = Sim | n = Não",
+                    "Confirmação",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            // Usuário clicou em Cancelar ou fechou a janela
+            if (resposta == null) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Operação cancelada pelo usuário.",
+                        "Aviso",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return false; // decisão de projeto: cancelar = false
+            }
+
+            resposta = resposta.trim().toLowerCase();
+
+            if (resposta.equals("s") || resposta.equals("sim")) {
+                return true;
+            }
+
+            if (resposta.equals("n") || resposta.equals("nao") || resposta.equals("não")) {
+                return false;
+            }
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Entrada inválida!\nDigite apenas 's' para Sim ou 'n' para Não.",
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
     public static int inputOpcao(String menuLoja, String s, String[] opcoes) {
         return 0;
     }

@@ -6,8 +6,10 @@ import main.java.com.meuapp.repository.LojaRepository;
 import main.java.com.meuapp.service.banco.AgenciaService;
 import main.java.com.meuapp.service.banco.ContaService;
 import main.java.com.meuapp.service.banco.ValidacaoService;
+import main.java.com.meuapp.service.loja.FornecedorService;
 import main.java.com.meuapp.service.loja.LojaService;
 import main.java.com.meuapp.service.loja.ValidacaoLojaService;
+import main.java.com.meuapp.service.venda.VendaService;
 import main.java.com.meuapp.util.InputUtil;
 
 public class ControllerPrincipal {
@@ -26,8 +28,8 @@ public class ControllerPrincipal {
                 ------ BEM VINDO ------
                 O que deseja fazer?
                 
-                1 - Acessar menu Banco UFC
-                2 - Acessar menu das lojas
+                1 - Módulo Agência Bancária
+                2 - Módulo Loja de Varejo
                 0 - Sair
                 """);
 
@@ -43,22 +45,33 @@ public class ControllerPrincipal {
     }
 
     public static ControllerPrincipal criarControllerPrincipal() {
+        // Model
+
+
         // Repositorios
         ContaRepository repository = new ContaRepository();
         ClienteRepository clienteRepository = new ClienteRepository();
         LojaRepository lojaRepository =  new LojaRepository();
 
         // Serviços
-        ContaService serviceBancario = new ContaService();
-        AgenciaService agenciaService = new AgenciaService(serviceBancario, repository);
+        ContaService contaService = new ContaService();
+        AgenciaService agenciaService = new AgenciaService(contaService, repository);
         ValidacaoService validacaoService = new ValidacaoService();
         ValidacaoLojaService validacaoLojaService = new ValidacaoLojaService();
-        LojaService lojaService = new LojaService(serviceBancario, clienteRepository, lojaRepository);
+        LojaService lojaService = new LojaService(contaService, clienteRepository, lojaRepository);
+        VendaService vendaService = new VendaService(lojaRepository, contaService);
+        FornecedorService fornecedorService = new FornecedorService();
 
         // Controladores
-        LojaController lojaController = new LojaController(agenciaService, validacaoLojaService, lojaService);
+        LojaController lojaController = new LojaController(
+                agenciaService,
+                validacaoLojaService,
+                lojaService,
+                contaService,
+                vendaService,
+                fornecedorService);
+
         AgenciaController agenciaController = new AgenciaController(agenciaService, validacaoService);
-        ControllerPrincipal controllerPrincipal = new ControllerPrincipal(agenciaController, lojaController);
 
         return new ControllerPrincipal(agenciaController, lojaController);
     }

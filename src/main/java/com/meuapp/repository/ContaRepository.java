@@ -5,11 +5,12 @@ import main.java.com.meuapp.model.banco.Pessoa;
 import main.java.com.meuapp.util.InputUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
 public class ContaRepository {
-    private static ArrayList<ContaBancaria> contas = new ArrayList<>();
+    private static List<ContaBancaria> contas = new ArrayList<>();
 
     public static void salvar(ContaBancaria conta) {
         contas.add(conta);
