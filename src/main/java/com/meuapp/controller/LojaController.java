@@ -152,7 +152,6 @@ public class LojaController {
                 .orElseGet(() -> InputUtil.inputString("Loja não encontrada. Tente novamente: "));
             
 
-
     }
 
     public void menuAcessarLoja() {
