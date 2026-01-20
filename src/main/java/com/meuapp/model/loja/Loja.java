@@ -23,6 +23,9 @@ public class Loja {
     private BigDecimal caixaLoja;
     private ContaBancaria contaEmpresarial;
 
+    private int tentativasFalhadas = 0;
+    private static final int MAX_TENTATIVAS_FALHADAS = 3;
+
     private List<Fornecedor> fornecedores = new ArrayList<>();
     private List<Venda> vendas = new ArrayList<>();
     private Map<String, Produto> estoque = new HashMap<>();
@@ -116,6 +119,22 @@ public class Loja {
 
     public void setFornecedores(List<Fornecedor> fornecedores) {
         this.fornecedores = fornecedores;
+    }
+
+    public int getTentativasFalhadas() {
+        return tentativasFalhadas;
+    }
+
+    public void incrementarTentativasFalhadas() {
+        this.tentativasFalhadas++;
+    }
+
+    public void resetarTentativasFalhadas() {
+        this.tentativasFalhadas = 0;
+    }
+
+    public boolean deveBloqueada() {
+        return tentativasFalhadas >= MAX_TENTATIVAS_FALHADAS;
     }
 
     public void adicionarFornecedor(Fornecedor fornecedor) {

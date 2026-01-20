@@ -1,6 +1,8 @@
 package main.java.com.meuapp.service.loja;
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
+import main.java.com.meuapp.exception.LojaBloqueadaException;
+import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.model.loja.Fornecedor;
 import main.java.com.meuapp.model.loja.Loja;
 import main.java.com.meuapp.model.loja.enums.StatusLoja;
@@ -71,20 +73,40 @@ public class FornecedorService {
         }
 
         Loja loja = compra.getLoja();
+
+        if (loja.getStatusLoja() == StatusLoja.BLOQUEADA) {
+            throw new LojaBloqueadaException(
+                    "Loja bloqueada! Foram realizadas" + loja.getTentativasFalhadas() +
+                            "operações mal sucedidas. Entre em contato com o suporte."
+            );
+        }
+
         Fornecedor fornecedor = compra.getFornecedor();
         double valorTotal = compra.calcularTotalNota();
         double saldoAtual = loja.getContaEmpresarial().getSaldo();
 
         if (saldoAtual < valorTotal) {
-            loja.setStatusLoja(StatusLoja.PENDENTE);
-            throw new IllegalStateException(
-                    String.format(
-                            "Saldo insuficiente! Saldo disponível: R$ %.2f | Valor da compra: R$ %.2f | Faltam: R$ %.2f",
-                            saldoAtual,
-                            valorTotal,
-                            valorTotal - saldoAtual
-                    )
-            );
+            loja.incrementarTentativasFalhadas();
+
+            if (loja.deveBloqueada()) {
+                loja.setStatusLoja(StatusLoja.BLOQUEADA);
+                throw new SaldoInsuficienteException(String.format(
+                        """
+                        LOJA BLOQUEADA! Saldo insuficiente pela %d consecutiva vez.
+                        Saldo insuficiente! Saldo disponível: R$ %.2f | Valor da compra: R$ %.2f | Faltam: R$ %.2f
+                        """, loja.getTentativasFalhadas(), saldoAtual, valorTotal, valorTotal - saldoAtual
+                ));
+            }
+            else {
+                loja.setStatusLoja(StatusLoja.PENDENTE);
+                throw new SaldoInsuficienteException(
+                        String.format(
+                                """
+                                Saldo insuficiente! (%d/%d tentativas falhadas)
+                                Saldo insuficiente! Saldo disponível: R$ %.2f | Valor da compra: R$ %.2f | Faltam: R$ %.2f
+                                """,loja.getTentativasFalhadas(), 3, saldoAtual, valorTotal, valorTotal - saldoAtual
+                        ));
+            }
         }
 
         contaService.transferir(

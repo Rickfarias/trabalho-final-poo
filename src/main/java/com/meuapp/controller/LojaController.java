@@ -1,6 +1,7 @@
 package main.java.com.meuapp.controller;
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
+import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
 import main.java.com.meuapp.model.loja.Fornecedor;
 import main.java.com.meuapp.model.loja.Loja;
@@ -251,6 +252,7 @@ public class LojaController {
                     return;
                 }
             }
+        }
 
             String opcoes = """
                     1 - Cadastrar produto
@@ -277,7 +279,6 @@ public class LojaController {
                     default -> InputUtil.warn("Opção inválida.", "AVISO");
                 }
             }
-        }
     }
 
     public void historicoVendasUI() {
@@ -317,7 +318,6 @@ public class LojaController {
 
         }
 
-        // Buscar todos os fornecedores
         List<Fornecedor> fornecedores = fornecedorService.listarTodos();
 
         if (fornecedores.isEmpty()) {
@@ -325,7 +325,6 @@ public class LojaController {
             return;
         }
 
-        // Criar array de opções formatadas para exibição
         String[] opcoesFornecedores = fornecedores.stream()
                 .map(f -> f.getContaEmpresarialFornecedor().getId() + " - " + f.getNomeFornecedor())
                 .toArray(String[]::new);
@@ -362,14 +361,12 @@ public class LojaController {
                 break;
             }
 
-            // Criar array de opções formatadas para exibição
             String[] opcoesProdutos = produtosFornecedor.stream()
                     .map(p -> p.getIdProduto() + " - " + p.getNomeProduto() +
                             " (R$ " + String.format("%.2f", p.getPrecoCusto()) +
                             " | Estoque: " + p.getQuantidade() + ")")
                     .toArray(String[]::new);
 
-            // Mostrar dialog de seleção de produto
             String produtoSelecionado = (String) JOptionPane.showInputDialog(
                     null,
                     "Selecione o produto:",
@@ -385,9 +382,7 @@ public class LojaController {
                 break;
             }
 
-            // Extrair o ID do produto da string selecionada
             String idProduto = produtoSelecionado.split(" - ")[0];
-
 
             int qtdProduto = InputUtil.inputInt(
                     "Insira a quantidade:"
@@ -400,9 +395,25 @@ public class LojaController {
             );
         }
 
-        fornecedorService.finalizarCompra(numeroNotaFiscal);
+        boolean compraFinalizada = false;
+        while (!compraFinalizada) {
+            try {
+                fornecedorService.finalizarCompra(numeroNotaFiscal);
+                InputUtil.info("Compra do fornecedor finalizada com sucesso!");
+                compraFinalizada = true;
+            } catch (SaldoInsuficienteException e) {
+                InputUtil.error(e.getMessage(), "SALDO INSUFICIENTE");
 
-        InputUtil.info("Compra do fornecedor finalizada com sucesso!");
+                String tentarNovamente = InputUtil.inputString(
+                        "A compra ficou como PENDENTE. Deseja tentar finalizar novamente? (s/n):"
+                ).toLowerCase();
+
+                if (tentarNovamente.equals("n") || tentarNovamente.equals("não")) {
+                    InputUtil.warn("Compra cancelada. Status: PENDENTE", "AVISO");
+                    compraFinalizada = true; //
+                }
+            }
+        }
     }
 
     private void menuCadastrarProdutoUI() {
@@ -422,10 +433,7 @@ public class LojaController {
 
         String nomeProduto = InputUtil.inputString("Digite o nome do produto");
         double preco = InputUtil.inputDouble("Digite o preço do produto");
-
-        // A quantidade inicial no cadastrarProduto é 0
-        // pois quem irá adicionar produtos na loja sera o menuComprarDoFornecedor()
-        int qtd = 0;
+        int qtd = InputUtil.inputInt("Digite a quantidade do produto no estoque");
 
         Produto novoProduto = new Produto(cnpj, idProduto, nomeProduto, preco, qtd);
         produtoService.cadastrarNovoProduto(novoProduto);
