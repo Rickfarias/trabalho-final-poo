@@ -64,7 +64,7 @@ public class ControllerPrincipal {
 
         // Serviços
         ContaService contaService = new ContaService();
-        AgenciaService agenciaService = new AgenciaService(contaService, repository);
+        AgenciaService agenciaService = new AgenciaService(contaService, repository, clienteRepository);
         ValidacaoService validacaoService = new ValidacaoService();
         ValidacaoLojaService validacaoLojaService = new ValidacaoLojaService();
         LojaService lojaService = new LojaService(contaService, clienteRepository, lojaRepository);

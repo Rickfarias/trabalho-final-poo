@@ -19,7 +19,7 @@ public class AgenciaController {
         this.validacaoService = validacaoService;
     }
 
-    public void menuPrincipalUI() {
+    public void menuPrincipalUI() throws ContaInexistenteException {
         String menu = """
                Bem-vindo(a) ao Banco UFC!
                1 - Criar conta
@@ -44,7 +44,7 @@ public class AgenciaController {
         }
     }
 
-    public void criarContaUI() {
+    public void criarContaUI() throws ContaInexistenteException {
         String nome = InputUtil.inputString("Insira o seu nome completo");
         String senha = InputUtil.inputString("Insira a senha da conta");
         senha = validacaoService.confirmarSenha(senha);

@@ -4,19 +4,24 @@ import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.banco.Pessoa;
+import main.java.com.meuapp.model.cliente.Cliente;
 import main.java.com.meuapp.model.loja.Endereco;
+import main.java.com.meuapp.repository.ClienteRepository;
 import main.java.com.meuapp.repository.ContaRepository;
 import main.java.com.meuapp.util.Par;
 
 public class AgenciaService {
     private ContaService contaService;
     private ContaRepository contaRepository;
+    private ClienteRepository clienteRepository;
 
     public AgenciaService(
             ContaService contaService,
-            ContaRepository contaRepository) {
+            ContaRepository contaRepository,
+            ClienteRepository clienteRepository) {
         this.contaService = contaService;
         this.contaRepository = contaRepository;
+        this.clienteRepository = clienteRepository;
     }
 
     public ContaBancaria criarConta(
@@ -24,11 +29,13 @@ public class AgenciaService {
             String senha,
             String cpf,
             String email,
-            String endereco) {
+            String endereco) throws ContaInexistenteException {
         Pessoa p = new Pessoa(nome, senha, cpf, email, endereco);
 
         ContaBancaria conta = new ContaBancaria(p);
         ContaRepository.salvar(conta);
+        Cliente cliente = new Cliente(nome, senha, cpf, email, endereco, conta);
+        ClienteRepository.salvar(cliente);
 
         return conta;
     }

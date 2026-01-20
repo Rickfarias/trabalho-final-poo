@@ -98,11 +98,11 @@ public class Loja {
     }
 
     public BigDecimal getCaixaLoja() {
-        return caixaLoja;
+        return BigDecimal.valueOf(this.contaEmpresarial.getSaldo());
     }
 
-    public void setCaixaLoja(BigDecimal caixaLoja) {
-        this.caixaLoja = caixaLoja;
+    public void setCaixaLoja(BigDecimal valor) {
+        this.contaEmpresarial.setSaldo(valor.doubleValue());
     }
 
     public ContaBancaria getContaEmpresarial() {
@@ -119,6 +119,10 @@ public class Loja {
 
     public void setFornecedores(List<Fornecedor> fornecedores) {
         this.fornecedores = fornecedores;
+    }
+
+    public Map<String, Produto> getEstoqueList() {
+        return estoque;
     }
 
     public int getTentativasFalhadas() {
@@ -162,6 +166,11 @@ public class Loja {
 
     public void adicionarProduto(Produto produto) {
         estoque.put(produto.getIdProduto(), produto);
+    }
+
+    public void atualizarSaldoIntegrado(double novoSaldo) {
+        this.contaEmpresarial.setSaldo(novoSaldo);
+        this.caixaLoja = BigDecimal.valueOf(novoSaldo);
     }
 
     @Override

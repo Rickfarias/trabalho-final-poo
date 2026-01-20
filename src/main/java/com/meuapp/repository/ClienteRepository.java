@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class ClienteRepository {
-    private List<Cliente> clientes = new ArrayList<>();
+    private static List<Cliente> clientes = new ArrayList<>();
 
-    public void salvar(Cliente cliente) {
+    public static void salvar(Cliente cliente) {
         clientes.add(cliente);
     }
 
@@ -21,5 +21,17 @@ public class ClienteRepository {
 
     public List<Cliente> listarTodos() {
         return new ArrayList<>(clientes);
+    }
+
+    public Optional<Cliente> buscarPorId(String id) {
+        return clientes.stream()
+                .filter(c -> c.getCpf().equals(id)) // Assumindo que CPF é o ID de login
+                .findFirst();
+    }
+
+    public Optional<Cliente> buscarPorIdConta(String idConta) {
+        return clientes.stream()
+                .filter(c -> c.getConta().getId().equals(idConta))
+                .findFirst();
     }
 }

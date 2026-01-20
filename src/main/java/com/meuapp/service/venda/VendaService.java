@@ -5,6 +5,8 @@ import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.cliente.Cliente;
 import main.java.com.meuapp.model.loja.Fornecedor;
 import main.java.com.meuapp.model.loja.Loja;
+import main.java.com.meuapp.model.loja.enums.StatusLoja;
+import main.java.com.meuapp.model.produto.Produto;
 import main.java.com.meuapp.model.venda.Venda;
 import main.java.com.meuapp.repository.LojaRepository;
 import main.java.com.meuapp.service.banco.ContaService;
@@ -22,29 +24,39 @@ public class VendaService {
 
     public void realizarVenda(
             String nomeLoja,
-            String nomeFornecedor,
             Cliente cliente,
-            double valor) throws ContaInexistenteException {
+            String idProduto,
+            int quantidade) throws ContaInexistenteException {
 
         Loja loja = lojaRepository.buscarPorNome(nomeLoja)
                 .orElseThrow(() -> new IllegalArgumentException("Loja não encontrada"));
 
-        Fornecedor fornecedor = loja.buscarFornecedorPorNome(nomeFornecedor);
-
-        if (fornecedor == null) {
-            throw new IllegalArgumentException("Fornecedor não encontrado");
-        }
 
         ContaBancaria contaCliente = cliente.getConta();
         ContaBancaria contaLoja = loja.getContaEmpresarial();
-        ContaBancaria contaFornecedor = fornecedor.getContaEmpresarialFornecedor();
+        Produto produto = loja.getEstoqueList().get(idProduto);
 
-        contaService.transferir(contaCliente, contaLoja, valor);
+        if (produto == null) {
+            throw new IllegalArgumentException("Produto não existe no estoque desta loja.");
+        }
+        if (produto.getQuantidade() < quantidade) {
+            throw new IllegalArgumentException("Estoque insuficiente! Disponível: " + produto.getQuantidade());
+        }
 
-        double valorFornecedor = valor * 0.3;
-        contaService.transferir(contaLoja, contaFornecedor, valorFornecedor);
+        contaService.transferir(contaCliente, contaLoja, quantidade);
+        // Para o cliente é 30% mais caro e o getPrecoVenda ja tem isso registrado
+        double valorTotal = produto.getPrecoVenda() * quantidade;
+        contaService.transferir(cliente.getConta(), loja.getContaEmpresarial(), valorTotal);
 
-        Venda venda = new Venda(cliente, loja, fornecedor, valor);
+
+        produto.setQuantidade(produto.getQuantidade() - quantidade);
+
+        if (loja.getStatusLoja() == StatusLoja.PENDENTE) {
+            loja.setStatusLoja(StatusLoja.ATIVA);
+            loja.resetarTentativasFalhadas();
+        }
+
+        Venda venda = new Venda(cliente, loja, quantidade);
         loja.registrarVenda(venda);
     }
 

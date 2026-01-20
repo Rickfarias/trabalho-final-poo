@@ -14,10 +14,9 @@ public class Venda {
     private double valorFornecedor;
     private LocalDateTime data;
 
-    public Venda(Cliente cliente, Loja loja, Fornecedor fornecedor, double valorTotal) {
+    public Venda(Cliente cliente, Loja loja, double valorTotal) {
         this.cliente = cliente;
         this.loja = loja;
-        this.fornecedor = fornecedor;
         this.valorTotal = valorTotal;
         this.valorFornecedor = valorTotal * 0.3;
         this.data = LocalDateTime.now();

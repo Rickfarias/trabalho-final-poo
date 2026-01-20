@@ -76,8 +76,8 @@ public class FornecedorService {
 
         if (loja.getStatusLoja() == StatusLoja.BLOQUEADA) {
             throw new LojaBloqueadaException(
-                    "Loja bloqueada! Foram realizadas" + loja.getTentativasFalhadas() +
-                            "operações mal sucedidas. Entre em contato com o suporte."
+                    "Loja bloqueada! Foram realizadas " + loja.getTentativasFalhadas() +
+                            " operações mal sucedidas. Entre em contato com o suporte."
             );
         }
 
@@ -85,12 +85,16 @@ public class FornecedorService {
         double valorTotal = compra.calcularTotalNota();
         double saldoAtual = loja.getContaEmpresarial().getSaldo();
 
-        if (saldoAtual < valorTotal) {
+        boolean isPrimeiraCompra = loja.getTentativasFalhadas() == 0
+                && saldoAtual == 0.0
+                && loja.getStatusLoja() == StatusLoja.ATIVA;
+
+        if (!isPrimeiraCompra && saldoAtual < valorTotal) {
             loja.incrementarTentativasFalhadas();
 
-            if (loja.deveBloqueada()) {
+            if (loja.getTentativasFalhadas() >= 3 || loja.deveBloqueada()) {
                 loja.setStatusLoja(StatusLoja.BLOQUEADA);
-                throw new SaldoInsuficienteException(String.format(
+                throw new LojaBloqueadaException(String.format(
                         """
                         LOJA BLOQUEADA! Saldo insuficiente pela %d consecutiva vez.
                         Saldo insuficiente! Saldo disponível: R$ %.2f | Valor da compra: R$ %.2f | Faltam: R$ %.2f
@@ -115,8 +119,6 @@ public class FornecedorService {
                 valorTotal
         );
 
-        loja.getContaEmpresarial().setSaldo(loja.getCaixaLoja().doubleValue());
-
         try {
             for (ItemCompra item : compra.getItens()) {
                 produtoService.adicionarAoEstoque(
@@ -138,8 +140,20 @@ public class FornecedorService {
             throw new IllegalStateException("Erro ao atualizar estoque: " + e.getMessage());
         }
 
+
         compra.finalizar();
         loja.setStatusLoja(StatusLoja.ATIVA);
+
+        if (loja.getContaEmpresarial().getSaldo() == 0) {
+            loja.incrementarTentativasFalhadas();
+        } else {
+            loja.resetarTentativasFalhadas();
+        }
+
+        if (loja.getTentativasFalhadas() >= 3) {
+            loja.setStatusLoja(StatusLoja.BLOQUEADA);
+        }
+
         comprasEmAndamento.remove(numeroNotaFiscal);
     }
 

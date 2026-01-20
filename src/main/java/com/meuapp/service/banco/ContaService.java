@@ -1,8 +1,5 @@
 package main.java.com.meuapp.service.banco;
 
-/*
-* TODO: Adicionar regras de negocio de ContaBancaria aqui
-* */
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SaldoInsuficienteException;

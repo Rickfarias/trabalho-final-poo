@@ -1,6 +1,7 @@
 package main.java.com.meuapp.controller;
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
+import main.java.com.meuapp.exception.LojaBloqueadaException;
 import main.java.com.meuapp.exception.SaldoInsuficienteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
 import main.java.com.meuapp.model.loja.Fornecedor;
@@ -26,6 +27,7 @@ import main.java.com.meuapp.util.InputUtil;
 import javax.swing.*;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class LojaController {
@@ -191,45 +193,102 @@ public class LojaController {
         InputUtil.info("Loja cadastrada com sucesso! ID da Conta Bancária: " + contaEmpresarial.getId());
     }
 
-     public void menuRealizarCompra(Cliente clienteLogado) {
+    public void menuRealizarCompra(Cliente clienteLogado) {
+        String nomeLoja = InputUtil.inputString("Digite o nome da loja:");
 
-        String nomeLoja = InputUtil.inputString("""
-        --------------- NOVA COMPRA ---------------
-        Digite o nome da loja:
-        """);
+        Optional<Loja> lojaOpt = lojaService.buscarLojaPorNome(nomeLoja);
+        if (lojaOpt.isEmpty()) {
+            InputUtil.warn("Loja não encontrada.", "AVISO");
+            return;
+        }
+        Loja loja = lojaOpt.get();
 
-        double valorCompra = InputUtil.inputDouble("Insira o valor total da compra:");
+        Map<String, Produto> estoqueMap = loja.getEstoqueList();
 
-         List<String> fornecedores = vendaService.listarNomesFornecedores(nomeLoja);
-         String msg = fornecedores.stream()
-                 .reduce("Fornecedores disponíveis:\n", (a, b) -> a + "- " + b + "\n");
+        if (estoqueMap.isEmpty()) {
+            InputUtil.warn("Esta loja não possui produtos em estoque.", "AVISO");
+            return;
+        }
 
-         InputUtil.info(msg);
+        String[] opcoesProdutos = estoqueMap.values().stream()
+                .filter(p -> p.getQuantidade() > 0)
+                .map(p -> p.getIdProduto() + " - " + p.getNomeProduto() +
+                        " (R$ " + String.format("%.2f", p.getPrecoVenda()) +
+                        " | Disponível: " + p.getQuantidade() + ")")
+                .toArray(String[]::new);
 
-        String nomeFornecedor = InputUtil.inputString("Digite o nome do fornecedor:");
+        if (opcoesProdutos.length == 0) {
+            InputUtil.warn("Não há produtos com estoque disponível no momento.", "AVISO");
+            return;
+        }
+
+        String produtoSelecionado = (String) JOptionPane.showInputDialog(
+                null, "Selecione o produto:", "Estoque da Loja",
+                JOptionPane.QUESTION_MESSAGE, null, opcoesProdutos, opcoesProdutos[0]
+        );
+
+        if (produtoSelecionado == null) return;
+
+        String idProduto = produtoSelecionado.split(" - ")[0];
+        int qtdDesejada = InputUtil.inputInt("Insira a quantidade:");
 
         try {
             vendaService.realizarVenda(
-                    nomeLoja,
-                    nomeFornecedor,
+                    loja.getCnpj(),
                     clienteLogado,
-                    valorCompra
+                    idProduto,
+                    qtdDesejada
             );
-
             InputUtil.info("Compra realizada com sucesso!");
-
-        } catch (IllegalArgumentException e) {
-            InputUtil.warn(e.getMessage(), "AVISO");
-        } catch (ContaInexistenteException e) {
-            InputUtil.warn(e.getMessage(), "ERRO BANCÁRIO");
+        } catch (Exception e) {
+            InputUtil.error(e.getMessage(), "FALHA NA VENDA");
         }
     }
 
 
     public void menuClienteUI() {
+        ContaBancaria contaCliente = null;
 
+        while (contaCliente == null) {
+            String idLogin = InputUtil.inputString("Digite o id do cliente");
+            String senhaLogin = InputUtil.inputString("Digite a senha");
+
+            try {
+                contaCliente = lojaService.acessarConta(idLogin, senhaLogin);
+                Cliente cliente = lojaService.buscarClientePorConta(contaCliente);
+
+                executarMenuInternoCliente(cliente);
+            } catch (ContaInexistenteException e) {
+                InputUtil.warn(e.getMessage(), "AVISO");
+            } catch (SenhaIncorretaException e) {
+                InputUtil.error(e.getMessage(), "ERRO");
+            }
+
+            if (contaCliente == null) {
+                String tentarNovamente = InputUtil.inputString("Deseja tentar novamente? (s/n): ").toLowerCase();
+                if (tentarNovamente.equals("n") || tentarNovamente.equals("não")) {
+                    return;
+                }
+            }
+        }
     }
 
+    private void executarMenuInternoCliente(Cliente cliente) {
+        String opcoes = """
+            1 - Listar produtos
+            2 - Comprar produtos
+            0 - Voltar
+            """;
+        while (true) {
+            int escolha = InputUtil.inputInt(opcoes);
+            if (escolha == 0) return;
+
+            switch (escolha) {
+                case 1 -> produtoService.listarEstoque();
+                case 2 -> menuRealizarCompra(cliente);
+            }
+        }
+    }
 
     public void menuAdministradorUI() throws ContaInexistenteException {
         ContaBancaria conta = null;
@@ -410,7 +469,25 @@ public class LojaController {
 
                 if (tentarNovamente.equals("n") || tentarNovamente.equals("não")) {
                     InputUtil.warn("Compra cancelada. Status: PENDENTE", "AVISO");
-                    compraFinalizada = true; //
+                    compraFinalizada = true;
+                }
+            } catch (LojaBloqueadaException e) {
+                InputUtil.error(e.getMessage(), "LOJA BLOQUEADA");
+
+                String opcao = InputUtil.inputString(
+                        "A loja atingiu o limite de erros. Deseja solicitar desbloqueio ao suporte? (s/n): "
+                ).toLowerCase();
+
+                if (opcao.equals("s")) {
+                    try {
+                        lojaService.solicitarDesbloqueio(minhaLoja.getCnpj());
+                        InputUtil.info("Loja desbloqueada com sucesso! Tente finalizar a compra novamente.");
+                    } catch (Exception ex) {
+                        InputUtil.error("Falha ao desbloquear: " + ex.getMessage(), "ERRO");
+                    }
+                }
+                else {
+                    compraFinalizada = true;
                 }
             }
         }

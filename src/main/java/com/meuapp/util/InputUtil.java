@@ -1,16 +1,10 @@
 package main.java.com.meuapp.util;
 
-import main.java.com.meuapp.exception.CampoInvalidoException;
-
 import javax.swing.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class InputUtil {
-
-    /*
-    * TODO: Criar showMessagesDialogs com titulo e information messages
-    */
 
     public static String inputString(String mensagem) {
         return JOptionPane.showInputDialog(null, mensagem);

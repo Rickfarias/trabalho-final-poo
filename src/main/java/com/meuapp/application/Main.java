@@ -12,7 +12,6 @@ public class Main {
     }
 
     /*
-    * TODO: Fazer menu do cliente
     * TODO: Ajeitar o problema entre caixaLoja e saldo da conta da Loja
     * TODO: Resolver as exceções quebrando o codigo sempre
     */

@@ -3,12 +3,15 @@ package main.java.com.meuapp.service.loja;
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
+import main.java.com.meuapp.model.banco.Pessoa;
+import main.java.com.meuapp.model.cliente.Cliente;
 import main.java.com.meuapp.model.loja.Fornecedor;
 import main.java.com.meuapp.model.loja.enums.Categoria;
 import main.java.com.meuapp.model.loja.Contato;
 import main.java.com.meuapp.model.loja.Endereco;
 import main.java.com.meuapp.model.loja.enums.StatusLoja;
 import main.java.com.meuapp.model.loja.Loja;
+import main.java.com.meuapp.model.produto.Produto;
 import main.java.com.meuapp.repository.ClienteRepository;
 import main.java.com.meuapp.repository.ContaRepository;
 import main.java.com.meuapp.repository.LojaRepository;
@@ -153,5 +156,39 @@ public class LojaService {
         }
 
         return conta;
+    }
+
+    public void solicitarDesbloqueio(String cnpjLoja) {
+        Optional<Loja> loja = lojaRepository.buscarPorCnpj(cnpjLoja);
+
+        if (loja.isPresent()) {
+            Loja loja1 = loja.get();
+
+            if (loja1.getStatusLoja() == StatusLoja.BLOQUEADA) {
+                loja1.setStatusLoja(StatusLoja.ATIVA);
+                loja1.resetarTentativasFalhadas();
+
+                lojaRepository.salvarLoja(loja1);
+
+            }
+            else {
+                throw new IllegalArgumentException("A loja não está bloqueada, status da loja" + loja1.getStatusLoja());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("Loja com CNPJ " + cnpjLoja + " não encontrada");
+        }
+    }
+
+    public Cliente buscarClientePorConta(ContaBancaria conta) {
+        Pessoa titular = conta.getTitular();
+
+        if (titular instanceof Cliente cliente) {
+            return cliente;
+        }
+        return clienteRepository.listarTodos().stream()
+                .filter(c -> c.getConta().getId().equals(conta.getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado para esta conta."));
     }
 }
