@@ -37,9 +37,7 @@ public class AgenciaController {
             switch (opcao) {
                 case 1 -> criarContaUI();
                 case 2 -> acessarContaUI();
-                default -> {
-                    InputUtil.info("Valor Inválido, tente novamente");
-                }
+                default -> InputUtil.info("Valor Inválido, tente novamente");
             }
         }
     }
@@ -137,43 +135,46 @@ public class AgenciaController {
 
     public void menuSecundarioUI(ContaBancaria conta) {
 
-        InputUtil.info(String.format("""
-                            Bem-vindo(a) ao Banco UFC.
-                            Titular: %s
-                            ID: %s
-                            Saldo Inicial: R$%.2f
-                        """, conta.getTitular(), conta.getId(), conta.getSaldo()));
+        while (true) {
 
-        String input = InputUtil.inputString(
-                """
-                        Digite
-                        1 - Saque
-                        2 - Deposito
-                        3 - Transferir
-                        4 - Listar contas
-                        (Ou 'sair' para encerrar):
-                        """);
+            InputUtil.info(String.format("""
+                                Bem-vindo(a) ao Banco UFC.
+                                Titular: %s
+                                ID: %s
+                                Saldo Inicial: R$%.2f
+                            """, conta.getTitular(), conta.getId(), conta.getSaldo()));
 
-        if (input == null || input.equalsIgnoreCase("sair")) {
-            return;
-        }
+            String input = InputUtil.inputString(
+                    """
+                            Digite
+                            1 - Saque
+                            2 - Deposito
+                            3 - Transferir
+                            4 - Listar contas
+                            (Ou 'sair' para encerrar):
+                            """);
 
-        try {
-            switch (input) {
-                case "1" -> saqueUI(conta);
-                case "2" -> depositarUI(conta);
-                case "3" -> transferirUI();
-                case "4" -> ContaRepository.listarContas();
+            if (input == null || input.equalsIgnoreCase("sair")) {
+                return;
             }
-        } catch (SaldoInsuficienteException e) {
-            InputUtil.warn(
-                    "ERRO DE NEGÓCIO: Saque Recusado.\nDetalhes: " + e.getMessage(),
-                    "Falha no Saque (Aviso)");
 
-        }catch (IllegalArgumentException e) {
-            InputUtil.error(
-                    "ERRO DE VALIDAÇÃO: " + e.getMessage(),
-                    "Falha no Saque (Erro)");
+            try {
+                switch (input) {
+                    case "1" -> saqueUI(conta);
+                    case "2" -> depositarUI(conta);
+                    case "3" -> transferirUI();
+                    case "4" -> ContaRepository.listarContas();
+                }
+            } catch (SaldoInsuficienteException e) {
+                InputUtil.warn(
+                        "ERRO DE NEGÓCIO: Saque Recusado.\nDetalhes: " + e.getMessage(),
+                        "Falha no Saque (Aviso)");
+
+            }catch (IllegalArgumentException e) {
+                InputUtil.error(
+                        "ERRO DE VALIDAÇÃO: " + e.getMessage(),
+                        "Falha no Saque (Erro)");
+            }
         }
     }
 }
