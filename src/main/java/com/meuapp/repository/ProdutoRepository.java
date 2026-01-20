@@ -28,4 +28,30 @@ public class ProdutoRepository {
         produtos.forEach(p -> sb.append(p).append("\n"));
         InputUtil.info(sb.toString());
     }
+
+    public void atualizar(Produto produtoAtualizado) {
+
+        for (int i = 0; i < produtos.size(); i++) {
+            Produto p = produtos.get(i);
+
+            if (p.getIdProduto().equals(produtoAtualizado.getIdProduto())) {
+                produtos.set(i, produtoAtualizado);
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException("Produto não encontrado para atualização.");
+    }
+
+    public void excluirPorId(String idProduto) {
+        boolean removido = produtos.removeIf(
+                p -> p.getIdProduto().equals(idProduto)
+        );
+
+        if (!removido) {
+            throw new IllegalArgumentException("Produto não encontrado");
+        }
+    }
+
+
 }

@@ -1,9 +1,5 @@
 package main.java.com.meuapp.model.loja.enums;
 
-/*
-* TODO: CRIAR MAIS CATEGORIAS
-*/
-
 public enum Categoria {
     VESTUARIO (1, "Vestuário"),
     ELETRONICOS (2, "Eletrônicos"),

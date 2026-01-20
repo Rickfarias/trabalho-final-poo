@@ -144,4 +144,32 @@ public class Loja {
     public void adicionarProduto(Produto produto) {
         estoque.put(produto.getIdProduto(), produto);
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Loja:
+                Nome: %s,
+                CNPJ: %s,
+                Endereço: %s,
+                Categoria: %s,
+                Contato: %s,
+                Status da Loja: %s,
+                Caixa da Loja: %s,
+                Conta: %s,
+                Vendas: %s,
+                Estoque: %s
+                """,
+                nomeLoja,
+                cnpj,
+                endereco,
+                categoria,
+                contato,
+                statusLoja,
+                caixaLoja,
+                contaEmpresarial,
+                fornecedores,
+                vendas,
+                estoque);
+    }
 }

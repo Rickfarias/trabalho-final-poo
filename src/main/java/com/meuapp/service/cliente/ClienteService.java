@@ -36,4 +36,6 @@ public class ClienteService {
                 .map(cliente -> cliente.getConta().getSaldo())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
     }
+
+
 }

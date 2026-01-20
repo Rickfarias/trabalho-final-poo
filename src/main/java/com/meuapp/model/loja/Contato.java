@@ -24,4 +24,12 @@ public class Contato {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Telefone: %s
+                Email: %s
+                """, telefone, email);
+    }
 }

@@ -5,6 +5,8 @@ package main.java.com.meuapp.service.loja;
 * TODO: Fazer método para listar as Lojas existentes
 */
 
+import main.java.com.meuapp.exception.ContaInexistenteException;
+import main.java.com.meuapp.exception.SenhaIncorretaException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.loja.Fornecedor;
 import main.java.com.meuapp.model.loja.enums.Categoria;
@@ -13,6 +15,7 @@ import main.java.com.meuapp.model.loja.Endereco;
 import main.java.com.meuapp.model.loja.enums.StatusLoja;
 import main.java.com.meuapp.model.loja.Loja;
 import main.java.com.meuapp.repository.ClienteRepository;
+import main.java.com.meuapp.repository.ContaRepository;
 import main.java.com.meuapp.repository.LojaRepository;
 import main.java.com.meuapp.service.banco.ContaService;
 
@@ -117,16 +120,16 @@ public class LojaService {
         lojaRepository.listarLojas();
     }
 
-    public Optional<String> buscarNomeDaLoja(String nomeLoja) {
-        return lojaRepository.buscarPorNome(nomeLoja).map(Loja::getNomeLoja);
+    public Optional<String> buscarNomeDaLojaPeloCNPJ(String cnpj) {
+        return lojaRepository.buscarPorCnpj(cnpj).map(Loja::getNomeLoja);
     }
 
     public Optional<Loja> buscarLojaPorNome(String nomeLoja) {
         return lojaRepository.buscarPorNome(nomeLoja);
     }
 
-    public Optional<String> buscarCNPJDaLoja(String cnpj) {
-        return lojaRepository.buscarPorCnpj(cnpj).map(Loja::getCnpj);
+    public Optional<Loja> buscarCNPJDaLoja(String cnpj) {
+        return lojaRepository.buscarPorCnpj(cnpj);
     }
 
     public String listarProdutos(String nomeLoja) {
@@ -140,5 +143,20 @@ public class LojaService {
                 .orElseThrow(() -> new IllegalArgumentException("Loja não encontrada"));
 
         loja.adicionarFornecedor(fornecedor);
+    }
+
+    public ContaBancaria acessarConta(String id, String senha)
+            throws ContaInexistenteException, SenhaIncorretaException {
+        ContaBancaria conta = ContaRepository.buscarContaPorID(id);
+
+        if (conta == null) {
+            throw new ContaInexistenteException("A conta não foi encontrada!");
+        }
+
+        if (!conta.getTitular().getSenha().equals(senha)) {
+            throw new SenhaIncorretaException("Senha incorreta");
+        }
+
+        return conta;
     }
 }

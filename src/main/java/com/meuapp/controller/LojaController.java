@@ -1,6 +1,8 @@
 package main.java.com.meuapp.controller;
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
+import main.java.com.meuapp.exception.SenhaIncorretaException;
+import main.java.com.meuapp.model.produto.Produto;
 import main.java.com.meuapp.model.venda.Venda;
 import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.cliente.Cliente;
@@ -13,6 +15,7 @@ import main.java.com.meuapp.service.banco.ContaService;
 import main.java.com.meuapp.service.loja.FornecedorService;
 import main.java.com.meuapp.service.loja.LojaService;
 import main.java.com.meuapp.service.loja.ValidacaoLojaService;
+import main.java.com.meuapp.service.produto.ProdutoService;
 import main.java.com.meuapp.service.venda.VendaService;
 import main.java.com.meuapp.util.EnumUtil;
 import main.java.com.meuapp.util.InputUtil;
@@ -27,6 +30,7 @@ public class LojaController {
     ContaService contaService;
     VendaService vendaService;
     FornecedorService fornecedorService;
+    ProdutoService produtoService;
 
     public LojaController(
             AgenciaService agenciaService,
@@ -34,13 +38,15 @@ public class LojaController {
             LojaService lojaService,
             ContaService contaService,
             VendaService vendaService,
-            FornecedorService fornecedorService) {
+            FornecedorService fornecedorService,
+            ProdutoService produtoService) {
         this.agenciaService = agenciaService;
         this.validacaoLojaService = validacaoLojaService;
         this.lojaService = lojaService;
         this.contaService = contaService;
         this.vendaService = vendaService;
         this.fornecedorService = fornecedorService;
+        this.produtoService = produtoService;
     }
 
     public void menuPrincipalLoja() {
@@ -223,28 +229,51 @@ public class LojaController {
 
 
     public void menuAdministradorUI() {
-        String opcoes = """
-                1 - Cadastrar produto
-                2 - Editar produto
-                3 - Excluir produto
-                4 - Comprar do fornecedor
-                5 - Histórico de vendas
-                0 - Voltar
-                """;
+        ContaBancaria conta = null;
 
-        while (true) {
-            int menu = InputUtil.inputInt(opcoes);
+        while (conta == null) {
+            String idLogin = InputUtil.inputString("Digite o ID da conta da loja");
+            String senhaLogin = InputUtil.inputString("Digite a senha");
 
-            if (menu == 0) {
-                return;
+            try {
+                conta = lojaService.acessarConta(idLogin, senhaLogin);
+            } catch (ContaInexistenteException e) {
+                InputUtil.warn(e.getMessage(), "AVISO");
+            } catch (SenhaIncorretaException e) {
+                InputUtil.error(e.getMessage(), "ERRO");
             }
 
-            switch (menu) {
-                case 1 -> menuCadastrarProdutoUI();
-                case 2 -> menuEditarProdutoUI();
-                case 3 -> menuExcluirProdutoUI();
-                case 4 -> menuComprarDoFornecedorUI();
-                case 5 -> historicoVendasUI();
+            if (conta == null) {
+                String tentarNovamente = InputUtil.inputString("Deseja tentar novamente? (s/n): ").toLowerCase();
+                if (tentarNovamente.equals("n") || tentarNovamente.equals("não")) {
+                    return;
+                }
+            }
+
+            String opcoes = """
+                    1 - Cadastrar produto
+                    2 - Editar produto
+                    3 - Excluir produto
+                    4 - Comprar do fornecedor
+                    5 - Histórico de vendas
+                    0 - Voltar
+                    """;
+
+            while (true) {
+                int menu = InputUtil.inputInt(opcoes);
+
+                if (menu == 0) {
+                    return;
+                }
+
+                switch (menu) {
+                    case 1 -> menuCadastrarProdutoUI();
+                    case 2 -> menuEditarProdutoUI();
+                    case 3 -> menuExcluirProdutoUI();
+                    case 4 -> menuComprarDoFornecedorUI();
+                    case 5 -> historicoVendasUI();
+                    default -> InputUtil.warn("Opção inválida.", "AVISO");
+                }
             }
         }
     }
@@ -271,7 +300,6 @@ public class LojaController {
     }
 
     private void menuComprarDoFornecedorUI() {
-
         String numeroNotaFiscal = InputUtil.inputString(
                 "Insira o número da nota fiscal:"
         );
@@ -294,25 +322,142 @@ public class LojaController {
             );
         }
 
-        //  Finalização da compra
-        // compraService.finaliezarCompra(numeroNotaFiscal);
+        fornecedorService.finalizarCompra(numeroNotaFiscal);
 
         InputUtil.info("Compra do fornecedor finalizada com sucesso!");
     }
     private void menuCadastrarProdutoUI() {
-        InputUtil.inputString("Digite o código do produto");
-        InputUtil.inputString("Digite o nome do produto");
-        InputUtil.inputDouble("Digite o preço do produto");
+        String cnpj = InputUtil.inputString("Digite o CNPJ da loja que possui o produto");
+        if (lojaService.buscarCNPJDaLoja(cnpj).isEmpty()) {
+            InputUtil.error("Erro: Loja não encontrada!", "ERRO");
+            return;
+        }
+
+        String idProduto = InputUtil.inputValidado(
+                () -> InputUtil.inputString("Digite o código do produto (4 dígitos):"),
+                id -> {
+                    if (id.length() != 4 || !id.matches("\\d+"))
+                        throw new IllegalArgumentException("O ID deve ter exatamente 4 números.");
+                }
+        );
+
+        String nomeProduto = InputUtil.inputString("Digite o nome do produto");
+        double preco = InputUtil.inputDouble("Digite o preço do produto");
+
+        // A quantidade inicial no cadastrarProduto é 0
+        // pois quem irá adicionar produtos na loja sera o menuComprarDoFornecedor()
+        int qtd = 0;
+
+        Produto novoProduto = new Produto(cnpj, idProduto, nomeProduto, preco, qtd);
+        produtoService.cadastrarNovoProduto(novoProduto);
+
+        InputUtil.info(
+                "Produto '"
+                        + nomeProduto +
+                        "' cadastrado com sucesso para a loja "
+                        + lojaService.buscarNomeDaLojaPeloCNPJ(cnpj));
     }
 
     private void menuEditarProdutoUI() {
+        String idProduto = InputUtil.inputString(
+                "Digite o código do produto que deseja atualizar");
 
+        Produto produto = produtoService.buscarPorId(idProduto)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+
+        InputUtil.info(String.format("""
+                Produto encontradp:
+                ID: %s,
+                Nome: %s,
+                Preço: %.2f
+                Quantidade em estoque: %d.
+                """, produto.getIdProduto(),
+                produto.getNomeProduto(),
+                produto.getPrecoCusto(),
+                produto.getQuantidade()));
+
+        // so sera possivel atualizar nome e preco, visto que para atualizar qtd é necessario comprar mais produtos
+        String opcoes = """
+                O que deseja editar?
+                1 - Nome
+                2 - Preco
+                0 - Voltar
+                """;
+
+        while (true) {
+            int escolha = InputUtil.inputInt(opcoes);
+
+            if (escolha == 0) {
+                return;
+            }
+
+            switch (escolha) {
+                case 1 -> {
+                    String novoNome = InputUtil.inputString("Digite o novo nome:");
+                    produto.setNomeProduto(novoNome);
+                    produtoService.atualizarProduto(produto);
+                    InputUtil.info("Nome atualizado com sucesso!");
+                    return;
+                }
+
+                case 2 -> {
+                    double novoPreco = InputUtil.inputDouble("Digite o novo preço:");
+                    produto.setPrecoCusto(novoPreco);
+                    produtoService.atualizarProduto(produto);
+                    InputUtil.info("Preço atualizado com sucesso!");
+                    return;
+                }
+                default -> InputUtil.warn("Opção inválida.", "AVISO");
+            }
+        }
     }
 
     private void menuExcluirProdutoUI() {
+        String idProduto = InputUtil.inputString(
+                "Digite o código do produto que deseja excluir:"
+        );
 
+        Produto produto;
+        try {
+            produto = produtoService.buscarPorId(idProduto)
+                    .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+        } catch (IllegalArgumentException e) {
+            InputUtil.warn(e.getMessage(), "AVISO");
+            return;
+        }
+
+        InputUtil.info(String.format("""
+            Produto encontrado:
+            ID: %s
+            Nome: %s
+            Preço de venda: %.2f
+            Quantidade em estoque: %d
+            """,
+                produto.getIdProduto(),
+                produto.getNomeProduto(),
+                produto.getPrecoVenda(),
+                produto.getQuantidade()
+        ));
+
+        if (produto.getQuantidade() > 0) {
+            InputUtil.warn(
+                    "Não é possível excluir um produto com estoque disponível.",
+                    "OPERAÇÃO BLOQUEADA"
+            );
+            return;
+        }
+
+        boolean confirmar = InputUtil.inputBoolean(
+                "Tem certeza que deseja excluir este produto? (sim/não)"
+        );
+
+        if (!confirmar) {
+            InputUtil.info("Exclusão cancelada.");
+            return;
+        }
+
+        produtoService.excluirProduto(idProduto);
+        InputUtil.info("Produto excluído com sucesso!");
     }
-
-
 
 }
