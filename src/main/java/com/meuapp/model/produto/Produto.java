@@ -16,6 +16,14 @@
             atualizarPrecoCusto(precoCusto);
         }
 
+        public String getIdLoja() {
+            return idLoja;
+        }
+
+        public void setIdLoja(String idLoja) {
+            this.idLoja = idLoja;
+        }
+
         public String getIdProduto() {
             return idProduto;
         }
@@ -69,7 +77,7 @@
         public void atualizarPrecoCusto(double novoCusto) {
             if (novoCusto < 0) throw new IllegalArgumentException("Preço de custo inválido");
             this.precoCusto = novoCusto;
-            this.precoVenda = novoCusto * 1.30; // Requisito 3.4: Margem de 30% fixa
+            this.precoVenda = novoCusto * 1.30;
         }
 
         @Override

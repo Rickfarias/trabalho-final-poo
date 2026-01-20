@@ -1,47 +1,65 @@
 package main.java.com.meuapp.service.loja;
 
+import main.java.com.meuapp.exception.ContaInexistenteException;
+import main.java.com.meuapp.model.loja.Fornecedor;
+import main.java.com.meuapp.model.loja.Loja;
+import main.java.com.meuapp.model.loja.enums.StatusLoja;
 import main.java.com.meuapp.model.produto.Produto;
+import main.java.com.meuapp.repository.FornecedorRepository;
 import main.java.com.meuapp.repository.ProdutoRepository;
+import main.java.com.meuapp.service.banco.ContaService;
 import main.java.com.meuapp.service.produto.ProdutoService;
 import main.java.com.meuapp.service.venda.CompraFornecedor;
 import main.java.com.meuapp.service.venda.ItemCompra;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class FornecedorService {
     private final ProdutoRepository produtoRepository;
     private final ProdutoService produtoService;
+    private final ContaService contaService;
+    FornecedorRepository fornecedorRepository;
 
     // compras em andamento (notaFiscal -> compra)
     private final Map<String, CompraFornecedor> comprasEmAndamento = new HashMap<>();
 
     public FornecedorService(
             ProdutoRepository produtoRepository,
-            ProdutoService produtoService) {
+            ProdutoService produtoService,
+            ContaService contaService,
+            FornecedorRepository fornecedorRepository) {
         this.produtoRepository = produtoRepository;
         this.produtoService = produtoService;
+        this.contaService = contaService;
+        this.fornecedorRepository = fornecedorRepository;
     }
 
-    public void adicionarItem(
-            String numeroNotaFiscal,
-            String idProduto,
-            int qtdProduto
-    ) {
+    public void iniciarCompra(String numeroNotaFiscal, Loja loja, Fornecedor fornecedor) {
+        if (comprasEmAndamento.containsKey(numeroNotaFiscal)) {
+            throw new IllegalArgumentException("Compra já iniciada com essa nota fiscal.");
+        }
 
-        CompraFornecedor compra = comprasEmAndamento.computeIfAbsent(
-                numeroNotaFiscal,
-                CompraFornecedor::new
-        );
+        CompraFornecedor novaCompra = new CompraFornecedor(numeroNotaFiscal, loja, fornecedor);
+        comprasEmAndamento.put(numeroNotaFiscal, novaCompra);
+    }
+
+    public void adicionarItem(String numeroNotaFiscal, String idProduto, int qtdProduto) {
+        CompraFornecedor compra = comprasEmAndamento.get(numeroNotaFiscal);
+
+        if (compra == null) {
+            throw new IllegalArgumentException("Inicie a compra com a Nota Fiscal primeiro.");
+        }
 
         Produto produto = produtoRepository.buscarProdutoPorId(idProduto)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Produto não cadastrado no sistema."));
 
         compra.adicionarItem(produto, qtdProduto);
     }
 
-    public void finalizarCompra(String numeroNotaFiscal) {
-
+    public void finalizarCompra(String numeroNotaFiscal) throws ContaInexistenteException {
         CompraFornecedor compra = comprasEmAndamento.get(numeroNotaFiscal);
 
         if (compra == null) {
@@ -52,14 +70,66 @@ public class FornecedorService {
             throw new IllegalStateException("Compra já finalizada");
         }
 
-        for (ItemCompra item : compra.getItens()) {
-            produtoService.adicionarAoEstoque(
-                    item.getProduto().getIdProduto(),
-                    item.getQuantidade()
+        Loja loja = compra.getLoja();
+        Fornecedor fornecedor = compra.getFornecedor();
+        double valorTotal = compra.calcularTotalNota();
+        double saldoAtual = loja.getContaEmpresarial().getSaldo();
+
+        if (saldoAtual < valorTotal) {
+            loja.setStatusLoja(StatusLoja.PENDENTE);
+            throw new IllegalStateException(
+                    String.format(
+                            "Saldo insuficiente! Saldo disponível: R$ %.2f | Valor da compra: R$ %.2f | Faltam: R$ %.2f",
+                            saldoAtual,
+                            valorTotal,
+                            valorTotal - saldoAtual
+                    )
             );
         }
 
+        contaService.transferir(
+                loja.getContaEmpresarial(),
+                fornecedor.getContaEmpresarialFornecedor(),
+                valorTotal
+        );
+
+        loja.getContaEmpresarial().setSaldo(loja.getCaixaLoja().doubleValue());
+
+        try {
+            for (ItemCompra item : compra.getItens()) {
+                produtoService.adicionarAoEstoque(
+                        item.getProduto().getIdProduto(),
+                        item.getQuantidade()
+                );
+            }
+        } catch (Exception e) {
+            try {
+                contaService.transferir(
+                        fornecedor.getContaEmpresarialFornecedor(),
+                        loja.getContaEmpresarial(),
+                        valorTotal
+                );
+                System.err.println("Transferência revertida devido a erro no estoque.");
+            } catch (Exception ex) {
+                System.err.println("ERRO CRÍTICO: Não foi possível reverter transferência!");
+            }
+            throw new IllegalStateException("Erro ao atualizar estoque: " + e.getMessage());
+        }
+
         compra.finalizar();
+        loja.setStatusLoja(StatusLoja.ATIVA);
         comprasEmAndamento.remove(numeroNotaFiscal);
+    }
+
+    public boolean existeCompraEmAndamento(String numeroNotaFiscal) {
+        return comprasEmAndamento.containsKey(numeroNotaFiscal);
+    }
+
+    public Optional<Fornecedor> buscarPorId(String idFornecedor) {
+        return fornecedorRepository.buscarProdutoPorId(idFornecedor);
+    }
+
+    public List<Fornecedor> listarTodos() {
+        return fornecedorRepository.acharTodos();
     }
 }

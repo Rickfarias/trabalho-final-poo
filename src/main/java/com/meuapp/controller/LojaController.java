@@ -2,6 +2,8 @@ package main.java.com.meuapp.controller;
 
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
+import main.java.com.meuapp.model.loja.Fornecedor;
+import main.java.com.meuapp.model.loja.Loja;
 import main.java.com.meuapp.model.produto.Produto;
 import main.java.com.meuapp.model.venda.Venda;
 import main.java.com.meuapp.model.banco.ContaBancaria;
@@ -20,8 +22,10 @@ import main.java.com.meuapp.service.venda.VendaService;
 import main.java.com.meuapp.util.EnumUtil;
 import main.java.com.meuapp.util.InputUtil;
 
+import javax.swing.*;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public class LojaController {
     AgenciaService agenciaService;
@@ -49,7 +53,7 @@ public class LojaController {
         this.produtoService = produtoService;
     }
 
-    public void menuPrincipalLoja() {
+    public void menuPrincipalLoja() throws ContaInexistenteException {
         String opcoes = """
                     1 - Cadastrar loja
                     2 - Listar lojas
@@ -73,7 +77,7 @@ public class LojaController {
         }
     }
 
-    public void menuAcessarLoja() {
+    public void menuAcessarLoja() throws ContaInexistenteException {
         String opcoes = """
                 1 - Entrar como cliente
                 2 - Entrar como administrador
@@ -128,7 +132,6 @@ public class LojaController {
                 lojaService::validarEndereco
         );
 
-
         Categoria categoria = InputUtil.inputValidado(
                 () -> EnumUtil.selecionarEnum(
                         "Categorias",
@@ -151,7 +154,6 @@ public class LojaController {
                 lojaService::validarContato
         );
 
-
         StatusLoja statusLoja = InputUtil.inputValidado(
                 () -> EnumUtil.selecionarEnum(
                         "Status",
@@ -164,7 +166,8 @@ public class LojaController {
         String senhaContaLoja = InputUtil.inputString(
                 "Crie uma senha para sua loja");
 
-        BigDecimal caixaLoja = BigDecimal.ZERO;
+        BigDecimal capitalInicial = BigDecimal.valueOf(1000.0);
+        BigDecimal caixaLoja = capitalInicial;
         ContaBancaria contaEmpresarial = agenciaService.criarContaLoja(
                 nomeLoja,
                 senhaContaLoja,
@@ -172,7 +175,6 @@ public class LojaController {
                 contato.getEmail(),
                 end
         );
-
 
         lojaService.cadastrarLoja(
                 nomeLoja,
@@ -228,7 +230,7 @@ public class LojaController {
     }
 
 
-    public void menuAdministradorUI() {
+    public void menuAdministradorUI() throws ContaInexistenteException {
         ContaBancaria conta = null;
 
         while (conta == null) {
@@ -299,17 +301,93 @@ public class LojaController {
         InputUtil.info(sb.toString());
     }
 
-    private void menuComprarDoFornecedorUI() {
+    private void menuComprarDoFornecedorUI() throws ContaInexistenteException {
         String numeroNotaFiscal = InputUtil.inputString(
                 "Insira o número da nota fiscal:"
         );
+
+        Loja minhaLoja = null;
+        while (minhaLoja == null) {
+            String cnpjLoja = InputUtil.inputString("Digite o CNPJ da loja:");
+            minhaLoja = lojaService.buscarCNPJDaLoja(cnpjLoja).orElse(null);
+
+            if (minhaLoja == null) {
+                InputUtil.warn("Fornecedor não encontrado. Tente novamente.", "AVISO");
+            }
+
+        }
+
+        // Buscar todos os fornecedores
+        List<Fornecedor> fornecedores = fornecedorService.listarTodos();
+
+        if (fornecedores.isEmpty()) {
+            InputUtil.warn("Nenhum fornecedor cadastrado.", "AVISO");
+            return;
+        }
+
+        // Criar array de opções formatadas para exibição
+        String[] opcoesFornecedores = fornecedores.stream()
+                .map(f -> f.getContaEmpresarialFornecedor().getId() + " - " + f.getNomeFornecedor())
+                .toArray(String[]::new);
+
+        String fornecedorSelecionado = (String) JOptionPane.showInputDialog(
+                null,
+                "Selecione o fornecedor:",
+                "Fornecedores Disponíveis",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opcoesFornecedores,
+                opcoesFornecedores[0]
+        );
+
+        if (fornecedorSelecionado == null) {
+            InputUtil.info("Operação cancelada.");
+            return;
+        }
+
+        String idFornecedor = fornecedorSelecionado.split(" - ")[0];
+
+        Fornecedor fornecedor = fornecedorService.buscarPorId(idFornecedor)
+                .orElseThrow(() -> new IllegalArgumentException("Fornecedor não encontrado"));
+
+        fornecedorService.iniciarCompra(numeroNotaFiscal, minhaLoja, fornecedor);
+
         boolean continuar = true;
 
         while (continuar) {
+            List<Produto> produtosFornecedor = produtoService.buscarPorIdLoja(fornecedor.getCnpjFornecedor());
 
-            String idProduto = InputUtil.inputString(
-                    "Insira o código do produto:"
+            if (produtosFornecedor.isEmpty()) {
+                InputUtil.warn("Este fornecedor não possui produtos cadastrados.", "AVISO");
+                break;
+            }
+
+            // Criar array de opções formatadas para exibição
+            String[] opcoesProdutos = produtosFornecedor.stream()
+                    .map(p -> p.getIdProduto() + " - " + p.getNomeProduto() +
+                            " (R$ " + String.format("%.2f", p.getPrecoCusto()) +
+                            " | Estoque: " + p.getQuantidade() + ")")
+                    .toArray(String[]::new);
+
+            // Mostrar dialog de seleção de produto
+            String produtoSelecionado = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Selecione o produto:",
+                    "Produtos Disponíveis",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    opcoesProdutos,
+                    opcoesProdutos[0]
             );
+
+            if (produtoSelecionado == null) {
+                InputUtil.info("Seleção de produto cancelada.");
+                break;
+            }
+
+            // Extrair o ID do produto da string selecionada
+            String idProduto = produtoSelecionado.split(" - ")[0];
+
 
             int qtdProduto = InputUtil.inputInt(
                     "Insira a quantidade:"
@@ -326,6 +404,7 @@ public class LojaController {
 
         InputUtil.info("Compra do fornecedor finalizada com sucesso!");
     }
+
     private void menuCadastrarProdutoUI() {
         String cnpj = InputUtil.inputString("Digite o CNPJ da loja que possui o produto");
         if (lojaService.buscarCNPJDaLoja(cnpj).isEmpty()) {
@@ -351,19 +430,28 @@ public class LojaController {
         Produto novoProduto = new Produto(cnpj, idProduto, nomeProduto, preco, qtd);
         produtoService.cadastrarNovoProduto(novoProduto);
 
+        Optional<String> nomeLojaOptional = lojaService.buscarNomeDaLojaPeloCNPJ(cnpj);
+        String nomeLoja = nomeLojaOptional.orElse("Loja não encontrada");
+
         InputUtil.info(
-                "Produto '"
-                        + nomeProduto +
-                        "' cadastrado com sucesso para a loja "
-                        + lojaService.buscarNomeDaLojaPeloCNPJ(cnpj));
+                "Produto '" + nomeProduto + "' cadastrado com sucesso para a loja " + nomeLoja
+        );
+
     }
 
     private void menuEditarProdutoUI() {
-        String idProduto = InputUtil.inputString(
-                "Digite o código do produto que deseja atualizar");
 
-        Produto produto = produtoService.buscarPorId(idProduto)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+        Produto produto = null;
+        while (produto == null) {
+            String idProduto = InputUtil.inputString(
+                    "Digite o código do produto que deseja atualizar");
+            produto = produtoService.buscarPorId(idProduto)
+                        .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+
+            if (produto == null) {
+                InputUtil.warn("Produto não encontrado. Tente novamente", "AVISO");
+            }
+        }
 
         InputUtil.info(String.format("""
                 Produto encontradp:
@@ -459,5 +547,4 @@ public class LojaController {
         produtoService.excluirProduto(idProduto);
         InputUtil.info("Produto excluído com sucesso!");
     }
-
 }

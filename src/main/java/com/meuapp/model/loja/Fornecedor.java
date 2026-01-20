@@ -1,6 +1,5 @@
 package main.java.com.meuapp.model.loja;
 
-
 import main.java.com.meuapp.model.banco.ContaBancaria;
 import main.java.com.meuapp.model.loja.enums.Categoria;
 

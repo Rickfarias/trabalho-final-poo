@@ -1,10 +1,5 @@
 package main.java.com.meuapp.service.loja;
 
-/*
-* TODO: Criar lógica de ativação ou bloqueio da loja
-* TODO: Fazer método para listar as Lojas existentes
-*/
-
 import main.java.com.meuapp.exception.ContaInexistenteException;
 import main.java.com.meuapp.exception.SenhaIncorretaException;
 import main.java.com.meuapp.model.banco.ContaBancaria;
@@ -23,9 +18,9 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 public class LojaService {
-    private ContaService contaService;
-    private ClienteRepository clienteRepository;
-    private LojaRepository lojaRepository;
+    private final ContaService contaService;
+    private final ClienteRepository clienteRepository;
+    private final LojaRepository lojaRepository;
 
     public LojaService(ContaService contaService, ClienteRepository clienteRepository, LojaRepository lojaRepository) {
         this.contaService = contaService;

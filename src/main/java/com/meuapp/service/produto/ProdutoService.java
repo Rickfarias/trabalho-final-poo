@@ -3,6 +3,7 @@ package main.java.com.meuapp.service.produto;
 import main.java.com.meuapp.model.produto.Produto;
 import main.java.com.meuapp.repository.ProdutoRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ProdutoService {
@@ -81,5 +82,8 @@ public class ProdutoService {
         produtoRepository.excluirPorId(idProduto);
     }
 
+    public List<Produto> buscarPorIdLoja(String idLoja) {
+        return produtoRepository.buscarPorIdLoja(idLoja);
+    }
 
 }
